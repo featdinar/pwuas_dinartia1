@@ -1,0 +1,311 @@
+{
+  "project": {
+    "name": "Unsent",
+    "tagline": "The Messages You Never Sent",
+    "description": "Unsent adalah platform berbasis web yang memungkinkan pengguna menuliskan pesan yang tidak pernah sempat disampaikan kepada seseorang dan menghubungkannya dengan lagu yang mewakili perasaan mereka."
+  },
+
+  "technology": {
+    "frontend": [
+      "HTML5",
+      "CSS3",
+      "JavaScript"
+    ],
+    "backend": "PHP Native",
+    "database": "MySQL",
+    "server": "Apache (XAMPP / Hosting)",
+    "payment_gateway": "Midtrans"
+  },
+
+  "roles": {
+    "admin": {
+      "permissions": [
+        "Login Admin",
+        "Kelola User",
+        "Kelola Pesan",
+        "Kelola Lagu",
+        "Kelola Paket Premium",
+        "Kelola Transaksi",
+        "Melihat Statistik Sistem"
+      ]
+    },
+    "user": {
+      "permissions": [
+        "Register",
+        "Login",
+        "Membuat Pesan",
+        "Melihat Pesan",
+        "Mencari Pesan",
+        "Mengedit Pesan Sendiri",
+        "Menghapus Pesan Sendiri",
+        "Membeli Paket Premium"
+      ]
+    }
+  },
+
+  "modules": {
+    "authentication": [
+      "Register",
+      "Login",
+      "Logout",
+      "Session Management",
+      "Role Management"
+    ],
+
+    "message_management": [
+      "Create Message",
+      "Read Message",
+      "Update Message",
+      "Delete Message",
+      "Search Message By Recipient Name"
+    ],
+
+    "song_management": [
+      "Tambah Lagu",
+      "Edit Lagu",
+      "Hapus Lagu",
+      "Daftar Lagu"
+    ],
+
+    "premium_system": [
+      "Anonymous Message",
+      "Private Message",
+      "Scheduled Message",
+      "Custom Theme"
+    ],
+
+    "payment_system": [
+      "Pilih Paket Premium",
+      "Pembayaran Midtrans",
+      "Riwayat Pembayaran",
+      "Status Pembayaran"
+    ]
+  },
+
+  "pages": {
+    "public_pages": [
+      {
+        "name": "Landing Page",
+        "file": "index.php",
+        "features": [
+          "Hero Section",
+          "Search Message",
+          "Latest Messages",
+          "Premium Features",
+          "Login & Register Button"
+        ]
+      },
+      {
+        "name": "Login",
+        "file": "login.php"
+      },
+      {
+        "name": "Register",
+        "file": "register.php"
+      },
+      {
+        "name": "Search Message",
+        "file": "search.php"
+      }
+    ],
+
+    "user_pages": [
+      {
+        "name": "User Dashboard",
+        "file": "dashboard_user.php",
+        "features": [
+          "Total Messages",
+          "Premium Status",
+          "Recent Messages"
+        ]
+      },
+      {
+        "name": "Create Message",
+        "file": "create_message.php"
+      },
+      {
+        "name": "My Messages",
+        "file": "my_messages.php"
+      },
+      {
+        "name": "Edit Message",
+        "file": "edit_message.php"
+      },
+      {
+        "name": "Premium",
+        "file": "premium.php"
+      },
+      {
+        "name": "Payment",
+        "file": "payment.php"
+      },
+      {
+        "name": "Profile",
+        "file": "profile.php"
+      }
+    ],
+
+    "admin_pages": [
+      {
+        "name": "Admin Dashboard",
+        "file": "dashboard_admin.php"
+      },
+      {
+        "name": "Manage Users",
+        "file": "manage_users.php"
+      },
+      {
+        "name": "Manage Messages",
+        "file": "manage_messages.php"
+      },
+      {
+        "name": "Manage Songs",
+        "file": "manage_songs.php"
+      },
+      {
+        "name": "Manage Premium",
+        "file": "manage_premium.php"
+      },
+      {
+        "name": "Manage Payments",
+        "file": "manage_payments.php"
+      }
+    ]
+  },
+
+  "database": {
+    "users": {
+      "fields": [
+        "id_user",
+        "name",
+        "email",
+        "password",
+        "role",
+        "premium_status",
+        "created_at"
+      ]
+    },
+
+    "songs": {
+      "fields": [
+        "id_song",
+        "title",
+        "artist",
+        "link",
+        "created_at"
+      ]
+    },
+
+    "messages": {
+      "fields": [
+        "id_message",
+        "id_user",
+        "recipient_name",
+        "message_content",
+        "id_song",
+        "anonymous",
+        "private_message",
+        "theme",
+        "scheduled_date",
+        "created_at"
+      ]
+    },
+
+    "premium_packages": {
+      "fields": [
+        "id_package",
+        "package_name",
+        "price",
+        "duration_days",
+        "features"
+      ]
+    },
+
+    "payments": {
+      "fields": [
+        "id_payment",
+        "id_user",
+        "id_package",
+        "amount",
+        "payment_method",
+        "transaction_id",
+        "payment_status",
+        "payment_date"
+      ]
+    }
+  },
+
+  "premium_packages": [
+    {
+      "name": "Basic Premium",
+      "price": 10000,
+      "duration": "30 Days"
+    },
+    {
+      "name": "Silver Premium",
+      "price": 25000,
+      "duration": "90 Days"
+    },
+    {
+      "name": "Gold Premium",
+      "price": 50000,
+      "duration": "365 Days"
+    }
+  ],
+
+  "workflow": [
+    "User melakukan register akun.",
+    "User login ke sistem.",
+    "User membuat pesan untuk seseorang.",
+    "User memilih lagu yang mewakili pesan.",
+    "Pesan disimpan ke database.",
+    "Pengunjung dapat mencari pesan berdasarkan nama penerima.",
+    "User dapat membeli paket premium.",
+    "Payment Gateway memproses pembayaran.",
+    "Status premium user diperbarui otomatis.",
+    "Admin mengelola seluruh data sistem."
+  ],
+
+  "development_phases": [
+    {
+      "phase": 1,
+      "name": "Database Design"
+    },
+    {
+      "phase": 2,
+      "name": "Authentication System"
+    },
+    {
+      "phase": 3,
+      "name": "User Dashboard"
+    },
+    {
+      "phase": 4,
+      "name": "CRUD Messages"
+    },
+    {
+      "phase": 5,
+      "name": "Search Feature"
+    },
+    {
+      "phase": 6,
+      "name": "Admin Dashboard"
+    },
+    {
+      "phase": 7,
+      "name": "Premium System"
+    },
+    {
+      "phase": 8,
+      "name": "Payment Gateway Integration"
+    },
+    {
+      "phase": 9,
+      "name": "Testing"
+    },
+    {
+      "phase": 10,
+      "name": "Deployment"
+    }
+  ]
+}
