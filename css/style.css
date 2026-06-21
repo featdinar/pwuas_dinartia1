@@ -914,83 +914,177 @@ table.data-table tr:hover td {
   text-align: left;
 }
 
-/* Music Player Mockup */
-.music-player-mockup {
-  border-radius: var(--rounded-lg);
+/* Unsent Project Song Card Styling */
+.unsent-song-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: var(--spacing-md);
+  border-radius: var(--rounded-lg);
+  border: 1px solid rgba(20,20,19,0.08);
+  background-color: rgba(255, 255, 255, 0.45);
   margin-top: var(--spacing-xl);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.unsent-song-card-link {
+  outline: none;
+}
+
+.song-card-left {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  border: 1px solid rgba(20,20,19,0.1);
-  background-color: rgba(255,255,255,0.4);
 }
 
-.theme-navy .music-player-mockup {
-  background-color: var(--color-surface-dark-elevated);
-  border-color: rgba(255,255,255,0.05);
+.song-album-cover {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: var(--rounded-sm);
+  box-shadow: 0 4px 12px rgba(20,20,19,0.12);
+  transition: transform 0.25s ease;
 }
 
-.vinyl-disc {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #222 30%, #333 40%, #111 60%, #333 70%, #222 90%);
-  position: relative;
+.song-album-cover-fallback {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--rounded-sm);
+  background-color: rgba(20,20,19,0.05);
   display: flex;
-  justify-content: center;
   align-items: center;
-  animation: spin 4s linear infinite;
-  animation-play-state: paused;
+  justify-content: center;
+  color: var(--color-muted);
 }
 
-.music-player-mockup.playing .vinyl-disc {
-  animation-play-state: running;
+.song-metadata {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.vinyl-center {
-  width: 16px;
-  height: 16px;
-  background-color: var(--color-primary);
-  border-radius: 50%;
-}
-
-.player-info {
-  flex: 1;
-}
-
-.player-song-title {
+.song-title {
+  font-size: 15px;
   font-weight: 600;
-  font-size: 14px;
+  color: var(--color-ink);
+  line-height: 1.3;
 }
 
-.player-song-artist {
-  font-size: 12px;
+.song-artist {
+  font-size: 13px;
+  color: var(--color-body);
   opacity: 0.8;
 }
 
-.player-controls {
+.song-card-right {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  color: var(--color-body);
 }
 
-.play-btn {
-  background: var(--color-primary);
-  border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  color: white;
+.spotify-logo-svg {
+  width: 24px;
+  height: 24px;
+  fill: var(--color-body);
+  opacity: 0.6;
+  transition: fill 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
 }
 
-.theme-navy .play-btn {
-  background: var(--color-accent-teal);
-  color: var(--color-surface-dark);
+.view-link-fallback {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.7;
+  transition: opacity 0.25s ease;
+}
+
+/* Hover States */
+.unsent-song-card-link:hover .unsent-song-card {
+  background-color: rgba(255, 255, 255, 0.75);
+  border-color: rgba(20,20,19,0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(20,20,19,0.05);
+}
+
+.unsent-song-card-link:hover .song-album-cover {
+  transform: scale(1.05);
+}
+
+.unsent-song-card-link:hover .spotify-logo-svg {
+  fill: #1ed760 !important;
+  opacity: 1;
+  transform: scale(1.1) rotate(4deg);
+}
+
+.unsent-song-card-link:hover .view-link-fallback {
+  opacity: 1;
+  color: var(--color-primary);
+}
+
+/* Theme Adaptations for Song Card */
+.theme-navy .unsent-song-card {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.theme-navy .song-title {
+  color: var(--color-on-dark);
+}
+.theme-navy .song-artist {
+  color: var(--color-on-dark-soft);
+}
+.theme-navy .spotify-logo-svg {
+  fill: var(--color-on-dark-soft);
+}
+.theme-navy .song-album-cover-fallback {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--color-on-dark-soft);
+}
+.theme-navy .unsent-song-card-link:hover .unsent-song-card {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.theme-coral .unsent-song-card {
+  background-color: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+.theme-coral .song-title {
+  color: var(--color-on-primary);
+}
+.theme-coral .song-artist {
+  color: rgba(255, 255, 255, 0.85);
+}
+.theme-coral .spotify-logo-svg {
+  fill: rgba(255, 255, 255, 0.85);
+}
+.theme-coral .song-album-cover-fallback {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.85);
+}
+.theme-coral .unsent-song-card-link:hover .unsent-song-card {
+  background-color: rgba(0, 0, 0, 0.14);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.theme-teal .unsent-song-card {
+  background-color: rgba(26, 66, 58, 0.06);
+  border-color: rgba(26, 66, 58, 0.08);
+}
+.theme-teal .song-title {
+  color: #0d2822;
+}
+.theme-teal .song-artist {
+  color: #1a423a;
+}
+.theme-teal .spotify-logo-svg {
+  fill: #1a423a;
+}
+.theme-teal .song-album-cover-fallback {
+  background-color: rgba(26, 66, 58, 0.05);
+  color: #1a423a;
+}
+.theme-teal .unsent-song-card-link:hover .unsent-song-card {
+  background-color: rgba(26, 66, 58, 0.12);
+  border-color: rgba(26, 66, 58, 0.16);
 }
 
 /* Payment Gateway Mock */

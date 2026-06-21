@@ -17,13 +17,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $title = sanitize($_POST['title']);
         $artist = sanitize($_POST['artist']);
         $link = sanitize($_POST['link']);
+        $cover_image = sanitize($_POST['cover_image']);
+        $spotify_url = sanitize($_POST['spotify_url']);
 
         if (empty($title) || empty($artist) || empty($link)) {
             $error = 'Judul, artis, dan tautan lagu wajib diisi.';
         } else {
             try {
-                $insert = $pdo->prepare("INSERT INTO songs (title, artist, link) VALUES (?, ?, ?)");
-                if ($insert->execute([$title, $artist, $link])) {
+                $insert = $pdo->prepare("INSERT INTO songs (title, artist, link, cover_image, spotify_url) VALUES (?, ?, ?, ?, ?)");
+                if ($insert->execute([$title, $artist, $link, empty($cover_image) ? null : $cover_image, empty($spotify_url) ? null : $spotify_url])) {
                     $success = 'Lagu baru berhasil ditambahkan ke katalog.';
                 } else {
                     $error = 'Gagal menambahkan lagu.';
@@ -40,13 +42,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $title = sanitize($_POST['title']);
         $artist = sanitize($_POST['artist']);
         $link = sanitize($_POST['link']);
+        $cover_image = sanitize($_POST['cover_image']);
+        $spotify_url = sanitize($_POST['spotify_url']);
 
         if (empty($title) || empty($artist) || empty($link)) {
             $error = 'Judul, artis, dan tautan lagu wajib diisi.';
         } else {
             try {
-                $update = $pdo->prepare("UPDATE songs SET title = ?, artist = ?, link = ? WHERE id_song = ?");
-                if ($update->execute([$title, $artist, $link, $id_song])) {
+                $update = $pdo->prepare("UPDATE songs SET title = ?, artist = ?, link = ?, cover_image = ?, spotify_url = ? WHERE id_song = ?");
+                if ($update->execute([$title, $artist, $link, empty($cover_image) ? null : $cover_image, empty($spotify_url) ? null : $spotify_url, $id_song])) {
                     $success = 'Informasi lagu berhasil diperbarui.';
                 } else {
                     $error = 'Gagal memperbarui lagu.';
@@ -142,8 +146,19 @@ try {
               </div>
             </div>
 
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+              <div class="form-group">
+                <label class="form-label">Cover Album (URL)</label>
+                <input type="url" name="cover_image" class="form-input" placeholder="https://..." value="<?php echo sanitize($edit_song['cover_image']); ?>">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tautan Spotify</label>
+                <input type="url" name="spotify_url" class="form-input" placeholder="https://open.spotify.com/track/..." value="<?php echo sanitize($edit_song['spotify_url']); ?>">
+              </div>
+            </div>
+
             <div class="form-group">
-              <label class="form-label">Tautan Lagu (YouTube/Spotify Link)</label>
+              <label class="form-label">Tautan Lagu (YouTube/Lainnya)</label>
               <input type="url" name="link" class="form-input" required value="<?php echo sanitize($edit_song['link']); ?>">
               <span style="font-size: 11px; color:var(--color-muted);">Masukkan tautan URL eksternal pemutar lagu.</span>
             </div>
@@ -174,8 +189,19 @@ try {
               </div>
             </div>
 
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+              <div class="form-group">
+                <label class="form-label">Cover Album (URL)</label>
+                <input type="url" name="cover_image" class="form-input" placeholder="https://..." value="<?php echo isset($_POST['cover_image']) && isset($_POST['add_song']) ? sanitize($_POST['cover_image']) : ''; ?>">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tautan Spotify</label>
+                <input type="url" name="spotify_url" class="form-input" placeholder="https://open.spotify.com/track/..." value="<?php echo isset($_POST['spotify_url']) && isset($_POST['add_song']) ? sanitize($_POST['spotify_url']) : ''; ?>">
+              </div>
+            </div>
+
             <div class="form-group">
-              <label class="form-label">Tautan Lagu (YouTube/Spotify Link)</label>
+              <label class="form-label">Tautan Lagu (YouTube/Lainnya)</label>
               <input type="url" name="link" class="form-input" placeholder="https://..." required value="<?php echo isset($_POST['link']) && isset($_POST['add_song']) ? sanitize($_POST['link']) : ''; ?>">
             </div>
 
@@ -200,7 +226,7 @@ try {
                 <th>ID</th>
                 <th>Judul Lagu</th>
                 <th>Artis / Band</th>
-                <th>Tautan Tontonan</th>
+                <th>Tautan</th>
                 <th>Tanggal Ditambahkan</th>
                 <th>Aksi</th>
               </tr>
@@ -209,12 +235,28 @@ try {
               <?php foreach ($songs as $sng): ?>
                 <tr>
                   <td><?php echo $sng['id_song']; ?></td>
-                  <td style="font-weight: 600; color: var(--color-ink);"><?php echo sanitize($sng['title']); ?></td>
+                  <td style="font-weight: 600; color: var(--color-ink);">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <?php if (!empty($sng['cover_image'])): ?>
+                        <img src="<?php echo sanitize($sng['cover_image']); ?>" alt="Cover" style="width: 36px; height: 36px; object-fit: cover; border-radius: 4px; border: 1px solid var(--color-hairline);">
+                      <?php else: ?>
+                        <div style="width: 36px; height: 36px; background-color: var(--color-surface-soft); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 16px; border: 1px solid var(--color-hairline);">🎵</div>
+                      <?php endif; ?>
+                      <span><?php echo sanitize($sng['title']); ?></span>
+                    </div>
+                  </td>
                   <td><?php echo sanitize($sng['artist']); ?></td>
                   <td>
-                    <a href="<?php echo sanitize($sng['link']); ?>" target="_blank" style="font-size: 13px; font-weight: 500;">
-                      Buka Tautan ↗
-                    </a>
+                    <div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px;">
+                      <a href="<?php echo sanitize($sng['link']); ?>" target="_blank" style="font-weight: 500;">
+                        YouTube/Lainnya ↗
+                      </a>
+                      <?php if (!empty($sng['spotify_url'])): ?>
+                        <a href="<?php echo sanitize($sng['spotify_url']); ?>" target="_blank" style="color: #1ed760; font-weight: 600;">
+                          Spotify ↗
+                        </a>
+                      <?php endif; ?>
+                    </div>
                   </td>
                   <td><?php echo date('d-m-Y H:i', strtotime($sng['created_at'])); ?></td>
                   <td>

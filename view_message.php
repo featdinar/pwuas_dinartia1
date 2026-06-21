@@ -8,7 +8,7 @@ $error_msg = '';
 try {
     // Fetch message details
     $stmt = $pdo->prepare("
-        SELECT m.*, s.title as song_title, s.artist as song_artist, s.link as song_link, u.name as author_name 
+        SELECT m.*, s.title as song_title, s.artist as song_artist, s.link as song_link, s.cover_image as song_cover, s.spotify_url as song_spotify, u.name as author_name 
         FROM messages m 
         JOIN songs s ON m.id_song = s.id_song 
         JOIN users u ON m.id_user = u.id_user 
@@ -93,26 +93,47 @@ $author = ($msg['anonymous'] == 1) ? 'Seseorang yang ingin dirahasiakan' : sanit
       Dari: <strong><?php echo $author; ?></strong>
     </div>
 
-    <!-- Embedded Song Details & Audio Simulator -->
-    <div class="music-player-mockup" id="music-player">
-      <div class="vinyl-disc" id="vinyl">
-        <div class="vinyl-center"></div>
+    <!-- Integrated Song Card (Unsent Project Style) -->
+    <?php 
+      $click_url = !empty($msg['song_spotify']) ? $msg['song_spotify'] : (!empty($msg['song_link']) ? $msg['song_link'] : '#');
+      $is_clickable = ($click_url !== '#');
+    ?>
+    <?php if ($is_clickable): ?>
+      <a href="<?php echo sanitize($click_url); ?>" target="_blank" class="unsent-song-card-link" style="text-decoration: none; display: block; color: inherit;">
+    <?php endif; ?>
+    <div class="unsent-song-card" id="unsent-song-card">
+      <div class="song-card-left">
+        <?php if (!empty($msg['song_cover'])): ?>
+          <img src="<?php echo sanitize($msg['song_cover']); ?>" alt="Cover Album" class="song-album-cover">
+        <?php else: ?>
+          <div class="song-album-cover-fallback">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+            </svg>
+          </div>
+        <?php endif; ?>
+        <div class="song-metadata">
+          <div class="song-title"><?php echo sanitize($msg['song_title']); ?></div>
+          <div class="song-artist"><?php echo sanitize($msg['song_artist']); ?></div>
+        </div>
       </div>
-      <div class="player-info">
-        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.7; font-weight: 600;">Lagu Terkait</div>
-        <div class="player-song-title"><?php echo sanitize($msg['song_title']); ?></div>
-        <div class="player-song-artist"><?php echo sanitize($msg['song_artist']); ?></div>
-      </div>
-      <div class="player-controls">
-        <span id="play-status" style="font-size: 11px; opacity: 0.7; margin-right: 5px;">Diputar melalui tombol</span>
-        <button class="play-btn" id="simulate-play-btn" type="button">▶</button>
-        <?php if (!empty($msg['song_link'])): ?>
-          <a href="<?php echo sanitize($msg['song_link']); ?>" target="_blank" class="btn btn-secondary" style="height:32px; padding:4px 10px; font-size: 12px; display: inline-flex; align-items: center; justify-content: center;" title="Buka di YouTube/Spotify">
-            🔗 Buka Link
-          </a>
+      <div class="song-card-right">
+        <?php if (!empty($msg['song_spotify'])): ?>
+          <div class="spotify-logo-container" title="Buka di Spotify">
+            <svg viewBox="0 0 24 24" class="spotify-logo-svg" style="width: 24px; height: 24px; fill: currentColor;">
+              <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.565.387-.86.207-2.377-1.454-5.37-1.783-8.894-.982-.336.076-.668-.135-.744-.47-.076-.336.135-.668.47-.743 3.856-.88 7.15-.51 9.822 1.13.295.178.387.563.206.858zm1.225-2.72c-.226.367-.707.487-1.074.26-2.72-1.672-6.87-2.157-10.078-1.182-.413.125-.847-.11-.972-.522-.125-.413.11-.847.522-.972 3.67-1.114 8.24-.57 11.34 1.34.366.226.486.708.262 1.076zm.105-2.81c-3.258-1.934-8.634-2.113-11.747-1.168-.5.15-1.025-.133-1.176-.633-.15-.5.133-1.025.633-1.176 3.616-1.1 9.537-.893 13.29 1.336.45.267.6.843.333 1.293-.267.45-.843.6-1.293.333z"/>
+            </svg>
+          </div>
+        <?php else: ?>
+          <span class="view-link-fallback" style="font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+            Buka Link ↗
+          </span>
         <?php endif; ?>
       </div>
     </div>
+    <?php if ($is_clickable): ?>
+      </a>
+    <?php endif; ?>
   </div>
 
   <!-- Meta notes for premium users -->
