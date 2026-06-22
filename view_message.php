@@ -106,11 +106,7 @@ $author = ($msg['anonymous'] == 1) ? 'Seseorang yang ingin dirahasiakan' : sanit
         <?php if (!empty($msg['song_cover'])): ?>
           <img src="<?php echo sanitize($msg['song_cover']); ?>" alt="Cover Album" class="song-album-cover">
         <?php else: ?>
-          <div class="song-album-cover-fallback">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-            </svg>
-          </div>
+          <img src="images/default_cover.png" alt="Cover Album" class="song-album-cover">
         <?php endif; ?>
         <div class="song-metadata">
           <div class="song-title"><?php echo sanitize($msg['song_title']); ?></div>

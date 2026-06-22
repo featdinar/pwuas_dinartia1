@@ -96,4 +96,41 @@ function getPremiumExpiry() {
 function formatRupiah($number) {
     return 'Rp ' . number_format($number, 0, ',', '.');
 }
+
+// Helper: Fetch Spotify track metadata from oEmbed
+function getSpotifyMetadata($spotify_url) {
+    if (empty($spotify_url)) {
+        return null;
+    }
+    
+    // Check if it's a valid Spotify track URL
+    if (!preg_match('/^https?:\/\/(?:open|play)\.spotify\.com\/(?:[a-zA-Z\-]{2,5}\/)?track\/([a-zA-Z0-9]+)/i', $spotify_url)) {
+        return null;
+    }
+
+    $oembed_url = "https://open.spotify.com/oembed?url=" . urlencode($spotify_url);
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $oembed_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($http_code === 200 && !empty($response)) {
+        $data = json_decode($response, true);
+        if ($data) {
+            return [
+                'title' => $data['title'] ?? '',
+                'artist' => $data['author_name'] ?? '',
+                'cover_image' => $data['thumbnail_url'] ?? ''
+            ];
+        }
+    }
+    return null;
+}
 ?>

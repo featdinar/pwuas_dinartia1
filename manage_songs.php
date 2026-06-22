@@ -17,8 +17,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $title = sanitize($_POST['title']);
         $artist = sanitize($_POST['artist']);
         $link = sanitize($_POST['link']);
-        $cover_image = sanitize($_POST['cover_image']);
+        $cover_image = isset($_POST['cover_image']) ? sanitize($_POST['cover_image']) : '';
         $spotify_url = sanitize($_POST['spotify_url']);
+
+        // Auto-fetch if Spotify URL is provided
+        if (!empty($spotify_url)) {
+            $spotify_data = getSpotifyMetadata($spotify_url);
+            if ($spotify_data) {
+                $cover_image = $spotify_data['cover_image'];
+                if (empty($title)) $title = $spotify_data['title'];
+                if (empty($artist)) $artist = $spotify_data['artist'];
+            }
+        }
 
         if (empty($title) || empty($artist) || empty($link)) {
             $error = 'Judul, artis, dan tautan lagu wajib diisi.';
@@ -42,8 +52,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $title = sanitize($_POST['title']);
         $artist = sanitize($_POST['artist']);
         $link = sanitize($_POST['link']);
-        $cover_image = sanitize($_POST['cover_image']);
+        $cover_image = isset($_POST['cover_image']) ? sanitize($_POST['cover_image']) : '';
         $spotify_url = sanitize($_POST['spotify_url']);
+
+        // Auto-fetch if Spotify URL is provided
+        if (!empty($spotify_url)) {
+            $spotify_data = getSpotifyMetadata($spotify_url);
+            if ($spotify_data) {
+                $cover_image = $spotify_data['cover_image'];
+                if (empty($title)) $title = $spotify_data['title'];
+                if (empty($artist)) $artist = $spotify_data['artist'];
+            }
+        }
 
         if (empty($title) || empty($artist) || empty($link)) {
             $error = 'Judul, artis, dan tautan lagu wajib diisi.';
@@ -138,29 +158,38 @@ try {
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
               <div class="form-group">
                 <label class="form-label">Judul Lagu</label>
-                <input type="text" name="title" class="form-input" required value="<?php echo sanitize($edit_song['title']); ?>">
+                <input type="text" id="edit-title" name="title" class="form-input" required value="<?php echo sanitize($edit_song['title']); ?>">
               </div>
               <div class="form-group">
                 <label class="form-label">Nama Artis / Band</label>
-                <input type="text" name="artist" class="form-input" required value="<?php echo sanitize($edit_song['artist']); ?>">
+                <input type="text" id="edit-artist" name="artist" class="form-input" required value="<?php echo sanitize($edit_song['artist']); ?>">
               </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
               <div class="form-group">
-                <label class="form-label">Cover Album (URL)</label>
-                <input type="url" name="cover_image" class="form-input" placeholder="https://..." value="<?php echo sanitize($edit_song['cover_image']); ?>">
+                <label class="form-label">Tautan Spotify</label>
+                <input type="url" id="edit-spotify-url" name="spotify_url" class="form-input" placeholder="https://open.spotify.com/track/..." value="<?php echo sanitize($edit_song['spotify_url']); ?>">
               </div>
               <div class="form-group">
-                <label class="form-label">Tautan Spotify</label>
-                <input type="url" name="spotify_url" class="form-input" placeholder="https://open.spotify.com/track/..." value="<?php echo sanitize($edit_song['spotify_url']); ?>">
+                <label class="form-label">Tautan Lagu (YouTube/Lainnya)</label>
+                <input type="url" name="link" class="form-input" required value="<?php echo sanitize($edit_song['link']); ?>">
               </div>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Tautan Lagu (YouTube/Lainnya)</label>
-              <input type="url" name="link" class="form-input" required value="<?php echo sanitize($edit_song['link']); ?>">
-              <span style="font-size: 11px; color:var(--color-muted);">Masukkan tautan URL eksternal pemutar lagu.</span>
+            <input type="hidden" id="edit-cover-image" name="cover_image" value="<?php echo sanitize($edit_song['cover_image']); ?>">
+
+            <!-- Live Cover Preview -->
+            <div class="form-group" style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
+              <div>
+                <img id="edit-cover-preview" src="<?php echo !empty($edit_song['cover_image']) ? sanitize($edit_song['cover_image']) : 'images/default_cover.png'; ?>" alt="Cover Preview" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid var(--color-hairline);">
+              </div>
+              <div>
+                <span style="font-size: 13px; font-weight: 500; display: block; color: var(--color-ink);">Pratinjau Cover Album</span>
+                <span id="edit-spotify-status" style="font-size: 12px; color: var(--color-muted);">
+                  <?php echo !empty($edit_song['spotify_url']) ? 'Terkoneksi dengan Spotify' : 'Belum ada link Spotify. Menggunakan cover default.'; ?>
+                </span>
+              </div>
             </div>
 
             <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
@@ -181,28 +210,36 @@ try {
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
               <div class="form-group">
                 <label class="form-label">Judul Lagu</label>
-                <input type="text" name="title" class="form-input" required value="<?php echo isset($_POST['title']) && isset($_POST['add_song']) ? sanitize($_POST['title']) : ''; ?>">
+                <input type="text" id="add-title" name="title" class="form-input" required value="<?php echo isset($_POST['title']) && isset($_POST['add_song']) ? sanitize($_POST['title']) : ''; ?>">
               </div>
               <div class="form-group">
                 <label class="form-label">Nama Artis / Band</label>
-                <input type="text" name="artist" class="form-input" required value="<?php echo isset($_POST['artist']) && isset($_POST['add_song']) ? sanitize($_POST['artist']) : ''; ?>">
+                <input type="text" id="add-artist" name="artist" class="form-input" required value="<?php echo isset($_POST['artist']) && isset($_POST['add_song']) ? sanitize($_POST['artist']) : ''; ?>">
               </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
               <div class="form-group">
-                <label class="form-label">Cover Album (URL)</label>
-                <input type="url" name="cover_image" class="form-input" placeholder="https://..." value="<?php echo isset($_POST['cover_image']) && isset($_POST['add_song']) ? sanitize($_POST['cover_image']) : ''; ?>">
+                <label class="form-label">Tautan Spotify</label>
+                <input type="url" id="add-spotify-url" name="spotify_url" class="form-input" placeholder="https://open.spotify.com/track/..." value="<?php echo isset($_POST['spotify_url']) && isset($_POST['add_song']) ? sanitize($_POST['spotify_url']) : ''; ?>">
               </div>
               <div class="form-group">
-                <label class="form-label">Tautan Spotify</label>
-                <input type="url" name="spotify_url" class="form-input" placeholder="https://open.spotify.com/track/..." value="<?php echo isset($_POST['spotify_url']) && isset($_POST['add_song']) ? sanitize($_POST['spotify_url']) : ''; ?>">
+                <label class="form-label">Tautan Lagu (YouTube/Lainnya)</label>
+                <input type="url" name="link" class="form-input" placeholder="https://..." required value="<?php echo isset($_POST['link']) && isset($_POST['add_song']) ? sanitize($_POST['link']) : ''; ?>">
               </div>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Tautan Lagu (YouTube/Lainnya)</label>
-              <input type="url" name="link" class="form-input" placeholder="https://..." required value="<?php echo isset($_POST['link']) && isset($_POST['add_song']) ? sanitize($_POST['link']) : ''; ?>">
+            <input type="hidden" id="add-cover-image" name="cover_image" value="<?php echo isset($_POST['cover_image']) && isset($_POST['add_song']) ? sanitize($_POST['cover_image']) : ''; ?>">
+
+            <!-- Live Cover Preview -->
+            <div class="form-group" style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
+              <div>
+                <img id="add-cover-preview" src="images/default_cover.png" alt="Cover Preview" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid var(--color-hairline);">
+              </div>
+              <div>
+                <span style="font-size: 13px; font-weight: 500; display: block; color: var(--color-ink);">Pratinjau Cover Album</span>
+                <span id="add-spotify-status" style="font-size: 12px; color: var(--color-muted);">Belum ada link Spotify. Menggunakan cover default.</span>
+              </div>
             </div>
 
             <button type="submit" name="add_song" class="btn btn-primary" style="margin-top: 15px; float: right;">Tambah Lagu</button>
@@ -240,7 +277,7 @@ try {
                       <?php if (!empty($sng['cover_image'])): ?>
                         <img src="<?php echo sanitize($sng['cover_image']); ?>" alt="Cover" style="width: 36px; height: 36px; object-fit: cover; border-radius: 4px; border: 1px solid var(--color-hairline);">
                       <?php else: ?>
-                        <div style="width: 36px; height: 36px; background-color: var(--color-surface-soft); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 16px; border: 1px solid var(--color-hairline);">🎵</div>
+                        <img src="images/default_cover.png" alt="Cover" style="width: 36px; height: 36px; object-fit: cover; border-radius: 4px; border: 1px solid var(--color-hairline);">
                       <?php endif; ?>
                       <span><?php echo sanitize($sng['title']); ?></span>
                     </div>
@@ -279,5 +316,71 @@ try {
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    function setupSpotifyFetch(urlInputId, titleInputId, artistInputId, coverInputId, previewImgId, statusTextId) {
+        const urlInput = document.getElementById(urlInputId);
+        const titleInput = document.getElementById(titleInputId);
+        const artistInput = document.getElementById(artistInputId);
+        const coverInput = document.getElementById(coverInputId);
+        const previewImg = document.getElementById(previewImgId);
+        const statusText = document.getElementById(statusTextId);
+
+        if (!urlInput) return;
+
+        let debounceTimer;
+
+        urlInput.addEventListener("input", function() {
+            clearTimeout(debounceTimer);
+            const value = urlInput.value.trim();
+
+            if (!value) {
+                statusText.textContent = "Belum ada link Spotify. Menggunakan cover default.";
+                previewImg.src = "images/default_cover.png";
+                coverInput.value = "";
+                return;
+            }
+
+            const isSpotifyTrack = /^https?:\/\/(?:open|play)\.spotify\.com\/(?:[a-zA-Z\-]{2,5}\/)?track\/([a-zA-Z0-9]+)/i.test(value);
+            if (!isSpotifyTrack) {
+                statusText.textContent = "Bukan link Spotify track yang valid.";
+                previewImg.src = "images/default_cover.png";
+                coverInput.value = "";
+                return;
+            }
+
+            statusText.textContent = "Mengambil data dari Spotify...";
+            statusText.style.color = "var(--color-primary)";
+
+            debounceTimer = setTimeout(() => {
+                fetch(`https://open.spotify.com/oembed?url=${encodeURIComponent(value)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("HTTP error " + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (titleInput) titleInput.value = data.title || titleInput.value;
+                        if (artistInput) artistInput.value = data.author_name || artistInput.value;
+                        if (coverInput) coverInput.value = data.thumbnail_url || "";
+                        if (previewImg) previewImg.src = data.thumbnail_url || "images/default_cover.png";
+                        statusText.textContent = "Berhasil memuat data Spotify!";
+                        statusText.style.color = "var(--color-success)";
+                    })
+                    .catch(error => {
+                        console.error("Spotify fetch error:", error);
+                        statusText.textContent = "Gagal mengambil data. Silakan isi judul & artis manual.";
+                        statusText.style.color = "var(--color-error)";
+                    });
+            }, 600);
+        });
+    }
+
+    setupSpotifyFetch("add-spotify-url", "add-title", "add-artist", "add-cover-image", "add-cover-preview", "add-spotify-status");
+    setupSpotifyFetch("edit-spotify-url", "edit-title", "edit-artist", "edit-cover-image", "edit-cover-preview", "edit-spotify-status");
+});
+</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
