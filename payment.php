@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ");
         $insert->execute([$user_id, $pkg['id_package'], $amount, $payment_method, $transaction_id, $simulated_status]);
         
-        if ($simulated_status === 'completed') {
+        if ($simulated_status === 'success') {
             // 2. Fetch current user premium info
             $u_stmt = $pdo->prepare("SELECT premium_status, premium_until FROM users WHERE id_user = ?");
             $u_stmt->execute([$user_id]);
@@ -165,15 +165,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <!-- Simulator status selector -->
-        <input type="hidden" name="simulate_status" id="simulate-status-field" value="completed">
+        <input type="hidden" name="simulate_status" id="simulate-status-field" value="success">
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); margin-top: 25px;">
-          <button type="button" class="btn btn-danger" style="height: 44px;" onclick="submitSimulatedPayment('failed')">
-            ✗ Simulasikan Gagal
-          </button>
-          <button type="button" class="btn btn-primary" style="height: 44px;" onclick="submitSimulatedPayment('completed')">
-            ✓ Simulasikan Sukses
-          </button>
+          <button type="submit" class="btn btn-primary" style="height: 44px;">Konfirmasi Pembayaran</button>
         </div>
       </form>
     <?php endif; ?>
