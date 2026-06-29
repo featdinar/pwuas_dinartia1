@@ -93,44 +93,23 @@ $author = ($msg['anonymous'] == 1) ? 'Seseorang yang ingin dirahasiakan' : sanit
       Dari: <strong><?php echo $author; ?></strong>
     </div>
 
-    <!-- Integrated Song Card (Unsent Project Style) -->
-    <?php 
-      $click_url = !empty($msg['song_spotify']) ? $msg['song_spotify'] : (!empty($msg['song_link']) ? $msg['song_link'] : '#');
-      $is_clickable = ($click_url !== '#');
+<?php if (!empty($msg['song_spotify'])): ?>
+    <?php
+        $cover = $msg['song_cover'] ?? '';
+        $title = $msg['song_title'] ?? '';
+        $artist = $msg['song_artist'] ?? '';
     ?>
-    <?php if ($is_clickable): ?>
-      <a href="<?php echo sanitize($click_url); ?>" target="_blank" class="unsent-song-card-link" style="text-decoration: none; display: block; color: inherit;">
-    <?php endif; ?>
-    <div class="unsent-song-card" id="unsent-song-card">
-      <div class="song-card-left">
-        <?php if (!empty($msg['song_cover'])): ?>
-          <img src="<?php echo sanitize($msg['song_cover']); ?>" alt="Cover Album" class="song-album-cover">
-        <?php else: ?>
-          <img src="images/default_cover.png" alt="Cover Album" class="song-album-cover">
+    <div class="song-card" style="display:flex; align-items:center; gap:12px; margin-top:20px; padding:10px; background:var(--color-surface-soft); border-radius:8px;">
+        <?php if ($cover): ?>
+            <img src="<?= htmlspecialchars($cover) ?>" alt="Cover" style="width:60px; height:60px; object-fit:cover; border-radius:4px;">
         <?php endif; ?>
-        <div class="song-metadata">
-          <div class="song-title"><?php echo sanitize($msg['song_title']); ?></div>
-          <div class="song-artist"><?php echo sanitize($msg['song_artist']); ?></div>
+        <div>
+            <div style="font-weight:600;"><?= htmlspecialchars($title) ?></div>
+            <div style="color:var(--color-muted); font-size:0.9em;"><?= htmlspecialchars($artist) ?></div>
+            <a href="<?= htmlspecialchars($msg['song_spotify']) ?>" target="_blank" class="btn btn-primary" style="margin-top:6px; font-size:12px; padding:4px 10px;">Buka di Spotify</a>
         </div>
-      </div>
-      <div class="song-card-right">
-        <?php if (!empty($msg['song_spotify'])): ?>
-          <div class="spotify-logo-container" title="Buka di Spotify">
-            <svg viewBox="0 0 24 24" class="spotify-logo-svg" style="width: 24px; height: 24px; fill: currentColor;">
-              <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.565.387-.86.207-2.377-1.454-5.37-1.783-8.894-.982-.336.076-.668-.135-.744-.47-.076-.336.135-.668.47-.743 3.856-.88 7.15-.51 9.822 1.13.295.178.387.563.206.858zm1.225-2.72c-.226.367-.707.487-1.074.26-2.72-1.672-6.87-2.157-10.078-1.182-.413.125-.847-.11-.972-.522-.125-.413.11-.847.522-.972 3.67-1.114 8.24-.57 11.34 1.34.366.226.486.708.262 1.076zm.105-2.81c-3.258-1.934-8.634-2.113-11.747-1.168-.5.15-1.025-.133-1.176-.633-.15-.5.133-1.025.633-1.176 3.616-1.1 9.537-.893 13.29 1.336.45.267.6.843.333 1.293-.267.45-.843.6-1.293.333z"/>
-            </svg>
-          </div>
-        <?php else: ?>
-          <span class="view-link-fallback" style="font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
-            Buka Link ↗
-          </span>
-        <?php endif; ?>
-      </div>
     </div>
-    <?php if ($is_clickable): ?>
-      </a>
-    <?php endif; ?>
-  </div>
+<?php endif; ?>
 
   <!-- Meta notes for premium users -->
   <?php if ($is_owner): ?>
