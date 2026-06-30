@@ -18,7 +18,25 @@ try {
     $error = 'Gagal memuat data profil.';
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Add handling for stopping premium package
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['stop_premium'])) {
+    // Update user premium status
+    try {
+        // Ensure stop_date column exists
+        $pdo->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS stop_date DATETIME NULL");
+        $stmt = $pdo->prepare("UPDATE users SET premium_status = 0, premium_until = NULL, stop_date = CURRENT_TIMESTAMP WHERE id_user = ?");
+        $stmt->execute([$user_id]);
+        // Update session variables
+        $_SESSION['user_premium'] = 0;
+        $success = 'Paket premium berhasil dihentikan.';
+        // Refresh user data
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE id_user = ?");
+        $stmt->execute([$user_id]);
+        $user = $stmt->fetch();
+    } catch (PDOException $e) {
+        $error = 'Gagal menghentikan paket premium: ' . $e->getMessage();
+    }
+}
     if (isset($_POST['update_profile'])) {
         $name = sanitize($_POST['name']);
         $email = sanitize($_POST['email']);
@@ -77,7 +95,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
-}
 ?>
 
 <?php require_once __DIR__ . '/includes/header.php'; ?>
@@ -157,6 +174,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <div style="font-size: 12px; color: var(--color-muted); margin-top: 6px;">
                 Berlaku hingga: <?php echo date('d-m-Y H:i', strtotime($user['premium_until'])); ?>
               </div>
+                <div style="margin-top: 8px;">
+                    <form method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghentikan paket premium?');">
+                        <input type="hidden" name="stop_premium" value="1" />
+                        <button type="submit" class="btn btn-danger" style="height: 30px; font-size:12px; padding:0 12px;">Hentikan Paket Premium</button>
+                    </form>
+                </div>
             <?php else: ?>
               <span class="badge badge-cream">STANDARD USER</span>
               <div style="margin-top: 8px;">

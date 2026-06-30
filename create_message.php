@@ -138,17 +138,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
 
       <!-- Song selection -->
-      <div class="form-group">
-        <label for="id_song" class="form-label">Pilih Lagu Pendukung</label>
-        <select id="id_song" name="id_song" class="form-input" style="height: auto; padding: 10px;" required>
-          <option value="" disabled selected>-- Pilih lagu yang mewakili perasaan Anda --</option>
+      <div class="form-group song-selection">
+        <label class="form-label">Pilih Lagu Pendukung</label>
+        <div class="song-options" style="display: flex; overflow-x: auto; flex-wrap: nowrap; gap: var(--spacing-md);">
           <?php foreach ($songs as $song): ?>
-            <option value="<?php echo $song['id_song']; ?>" <?php echo (isset($_POST['id_song']) && $_POST['id_song'] == $song['id_song']) ? 'selected' : ''; ?>>
-              <?php echo sanitize($song['title']); ?> - <?php echo sanitize($song['artist']); ?>
-            </option>
+            <label class="song-option" style="display:flex; flex-direction:column; align-items:center; cursor:pointer;">
+              <input type="radio" name="id_song" value="<?php echo $song['id_song']; ?>" <?php echo (isset($_POST['id_song']) && $_POST['id_song'] == $song['id_song']) ? 'checked' : ''; ?> style="margin-bottom:5px;">
+              <img src="<?php echo !empty($song['cover_image']) ? sanitize($song['cover_image']) : 'images/default_cover.png'; ?>" alt="Cover" style="width:80px; height:80px; object-fit:cover; border:1px solid var(--color-hairline-soft); border-radius:4px;">
+              <span style="font-size:14px; margin-top:4px;"><?php echo sanitize($song['title']); ?> - <?php echo sanitize($song['artist']); ?></span>
+            </label>
           <?php endforeach; ?>
-        </select>
-        <span style="font-size: 12px; color: var(--color-muted);">Pilih dari daftar lagu yang tersedia di sistem kami.</span>
+        </div>
+        <span style="font-size:12px; color:var(--color-muted);">Pilih dari daftar lagu yang tersedia di sistem kami.</span>
       </div>
 
       <!-- Premium section -->
