@@ -12,7 +12,7 @@ $is_prem = isPremium();
 
 // Fetch catalog of songs
 try {
-    $songs_stmt = $pdo->prepare("SELECT id_song, title, artist FROM songs ORDER BY title ASC");
+    $songs_stmt = $pdo->prepare("SELECT id_song, title, artist, cover_image FROM songs ORDER BY title ASC");
     $songs_stmt->execute();
     $songs = $songs_stmt->fetchAll();
 } catch (PDOException $e) {
@@ -137,22 +137,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <textarea id="message_content" name="message_content" class="form-input" placeholder="Tuliskan kata-kata yang ingin Anda sampaikan..." required><?php echo isset($_POST['message_content']) ? sanitize($_POST['message_content']) : ''; ?></textarea>
       </div>
 
-      <!-- Song selection -->
-      <div class="form-group song-selection">
-        <label class="form-label">Pilih Lagu Pendukung</label>
-        <div class="song-options" style="display: flex; overflow-x: auto; flex-wrap: nowrap; gap: var(--spacing-md);">
-          <?php foreach ($songs as $song): ?>
-            <label class="song-option" style="display:flex; flex-direction:column; align-items:center; cursor:pointer;">
-              <input type="radio" name="id_song" value="<?php echo $song['id_song']; ?>" <?php echo (isset($_POST['id_song']) && $_POST['id_song'] == $song['id_song']) ? 'checked' : ''; ?> style="margin-bottom:5px;">
-              <img src="<?php echo !empty($song['cover_image']) ? sanitize($song['cover_image']) : 'images/default_cover.png'; ?>" alt="Cover" style="width:80px; height:80px; object-fit:cover; border:1px solid var(--color-hairline-soft); border-radius:4px;">
-              <span style="font-size:14px; margin-top:4px;"><?php echo sanitize($song['title']); ?> - <?php echo sanitize($song['artist']); ?></span>
-            </label>
-          <?php endforeach; ?>
+      <div class="form-group song-selection" style="position:relative;">
+    <label class="form-label" for="song_search">Pilih Lagu Pendukung</label>
+    <input type="text" id="song_search" class="form-input" placeholder="Cari lagu..." autocomplete="off" />
+    <input type="hidden" name="id_song" id="selected_song_id" value="<?php echo isset($_POST['id_song']) ? (int)$_POST['id_song'] : ''; ?>" />
+    <div id="song_dropdown" class="song-dropdown" style="display:none; position:absolute; left:0; width:100%; max-height:280px; overflow-y:auto; background:#F8F3EC; border:1px solid #E5D6C8; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:1000;">
+        <?php foreach ($songs as $song): ?>
+        <div class="song-item" data-id="<?php echo $song['id_song']; ?>" data-title="<?php echo htmlspecialchars($song['title'], ENT_QUOTES); ?>" data-artist="<?php echo htmlspecialchars($song['artist'], ENT_QUOTES); ?>" style="display:flex; align-items:center; height:64px; padding:5px 8px; cursor:pointer;">
+            <img src="<?php echo !empty($song['cover_image']) ? sanitize($song['cover_image']) : 'images/default_cover.png'; ?>" alt="Cover" style="width:48px; height:48px; object-fit:cover; margin-right:8px; border-radius:8px;" />
+            <div>
+                <div style="font-weight:500; color:#2D2D2D;"><?php echo sanitize($song['title']); ?></div>
+                <div style="font-size:0.9em; color:#7A6E66;"><?php echo sanitize($song['artist']); ?></div>
+            </div>
         </div>
-        <span style="font-size:12px; color:var(--color-muted);">Pilih dari daftar lagu yang tersedia di sistem kami.</span>
-      </div>
+        <?php endforeach; ?>
+    </div>
+    <span style="font-size:12px; color:var(--color-muted);">Pilih dari daftar lagu yang tersedia di sistem kami.</span>
+</div>
+<style>
+.song-dropdown {
+    animation: fadeSlideIn 0.2s ease-out forwards;
+}
+@keyframes fadeSlideIn {
+    from { opacity:0; transform:translateY(-8px); }
+    to { opacity:1; transform:translateY(0); }
+}
+.song-item:hover {
+    background:#EFE4D8;
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('song_search');
+    const dropdown = document.getElementById('song_dropdown');
+    const hiddenInput = document.getElementById('selected_song_id');
+    const items = dropdown.getElementsByClassName('song-item');
 
-      <!-- Premium section -->
+    // Show dropdown on focus
+    searchInput.addEventListener('focus', () => {
+        dropdown.style.display = 'block';
+    });
+
+    // Filter items as user types
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        let anyVisible = false;
+        Array.from(items).forEach(item => {
+            const title = item.dataset.title.toLowerCase();
+            const artist = item.dataset.artist.toLowerCase();
+            const match = title.includes(query) || artist.includes(query);
+            item.style.display = match ? 'flex' : 'none';
+            if (match) anyVisible = true;
+        });
+        dropdown.style.display = anyVisible ? 'block' : 'none';
+    });
+
+    // Click selection
+    Array.from(items).forEach(item => {
+        item.addEventListener('click', function() {
+            hiddenInput.value = this.dataset.id;
+            searchInput.value = this.dataset.title;
+            dropdown.style.display = 'none';
+        });
+    });
+
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+});
+</script>
+<!-- Premium section -->
       <div class="premium-locked-section">
         
         <?php if (!$is_prem): ?>
