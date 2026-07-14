@@ -46,9 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             INSERT INTO payments (id_user, id_package, amount, payment_method, transaction_id, payment_status, payment_date)
             VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         ");
-        $insert->execute([$user_id, $pkg['id_package'], $amount, $payment_method, $transaction_id, $simulated_status]);
-        
-        if ($simulated_status === 'success') {
+        // Map simulated status to actual stored status
+        $payment_status = ($simulated_status === 'success') ? 'completed' : $simulated_status;
+        $insert->execute([$user_id, $pkg['id_package'], $amount, $payment_method, $transaction_id, $payment_status]);
+
+        if ($payment_status === 'completed') {
             // 2. Fetch current user premium info
             $u_stmt = $pdo->prepare("SELECT premium_status, premium_until FROM users WHERE id_user = ?");
             $u_stmt->execute([$user_id]);
