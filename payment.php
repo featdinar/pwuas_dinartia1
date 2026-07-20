@@ -47,7 +47,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         ");
         // Map simulated status to actual stored status
-        $payment_status = ($simulated_status === 'success') ? 'completed' : $simulated_status;
+        // Ensure a valid status is always inserted (completed, pending, or failed)
+        $simulated_status = strtolower(trim($simulated_status));
+        if ($simulated_status === 'success') {
+            $payment_status = 'completed';
+        } elseif (in_array($simulated_status, ['completed', 'pending', 'failed'])) {
+            // Accept explicit status values (including 'completed' if sent directly)
+            $payment_status = $simulated_status;
+        } else {
+            // Fallback to pending if unknown or empty
+            $payment_status = 'pending';
+        }
         $insert->execute([$user_id, $pkg['id_package'], $amount, $payment_method, $transaction_id, $payment_status]);
 
         if ($payment_status === 'completed') {
