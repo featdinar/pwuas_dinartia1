@@ -1,5 +1,6 @@
 <?php
 $page_title = 'Pembayaran Paket';
+
 require_once __DIR__ . '/includes/config.php';
 
 // Enforce login
@@ -31,76 +32,39 @@ $stmt->execute([$user_id]);
 $user = $stmt->fetch();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $payment_method = sanitize($_POST['payment_method']);
-    $simulated_status = sanitize($_POST['simulate_status']); // 'completed' or 'failed'
-    
-    // Generate simulated transactional metadata
-    $transaction_id = 'TX-' . strtoupper(bin2hex(random_bytes(6)));
-    $amount = $pkg['price'];
-    
     try {
+        $payment_method = sanitize($_POST['payment_method']);
+        // Generate transaction metadata
+        $transaction_id = 'TX-' . strtoupper(bin2hex(random_bytes(6)));
+        $amount = $pkg['price'];
+        $payment_status = 'success';
+
+        // Begin transaction for both payment record and premium activation
         $pdo->beginTransaction();
-        
-        // 1. Insert Payment Log
-        $insert = $pdo->prepare("
-            INSERT INTO payments (id_user, id_package, amount, payment_method, transaction_id, payment_status, payment_date)
-            VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-        ");
-        // Map simulated status to actual stored status
-        // Ensure a valid status is always inserted (completed, pending, or failed)
-        $simulated_status = strtolower(trim($simulated_status));
-        if ($simulated_status === 'success') {
-            $payment_status = 'completed';
-        } elseif (in_array($simulated_status, ['completed', 'pending', 'failed'])) {
-            // Accept explicit status values (including 'completed' if sent directly)
-            $payment_status = $simulated_status;
-        } else {
-            // Fallback to pending if unknown or empty
-            $payment_status = 'pending';
-        }
+
+        // Insert payment record
+        $insert = $pdo->prepare(
+            "INSERT INTO payments (id_user, id_package, amount, payment_method, transaction_id, payment_status, payment_date) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)"
+        );
         $insert->execute([$user_id, $pkg['id_package'], $amount, $payment_method, $transaction_id, $payment_status]);
 
-        if ($payment_status === 'completed') {
-            // 2. Fetch current user premium info
-            $u_stmt = $pdo->prepare("SELECT premium_status, premium_until FROM users WHERE id_user = ?");
-            $u_stmt->execute([$user_id]);
-            $usr = $u_stmt->fetch();
-            
-            $duration_days = (int)$pkg['duration_days'];
-            $new_until = null;
-            
-            if ($usr && $usr['premium_status'] == 1 && $usr['premium_until'] !== null) {
-                // If already premium, extend from their current expiry date!
-                $current_expiry = strtotime($usr['premium_until']);
-                if ($current_expiry > time()) {
-                    $new_until = date('Y-m-d H:i:s', strtotime("+$duration_days days", $current_expiry));
-                } else {
-                    $new_until = date('Y-m-d H:i:s', strtotime("+$duration_days days"));
-                }
-            } else {
-                // Not premium / expired, start from now
-                $new_until = date('Y-m-d H:i:s', strtotime("+$duration_days days"));
-            }
-            
-            // 3. Update User Premium details
-            $update_usr = $pdo->prepare("UPDATE users SET premium_status = 1, premium_until = ? WHERE id_user = ?");
-            $update_usr->execute([$new_until, $user_id]);
-            
-            // 4. Update session
-            $_SESSION['user_premium'] = 1;
-            
-            $pdo->commit();
-            $success = 'Pembayaran Sukses! Status premium Anda telah diaktifkan sampai ' . date('d-m-Y H:i', strtotime($new_until)) . '.';
-        } else {
-            // Payment failed, just commit the failed transaction log
-            $pdo->commit();
-            $error = 'Pembayaran Gagal! Simulasi pembayaran ditolak atau gagal dilakukan.';
-        }
+        // Activate premium for user
+        $duration_days = (int)$pkg['duration_days'];
+        $new_until = date('Y-m-d H:i:s', strtotime("+$duration_days days"));
+        $update_usr = $pdo->prepare("UPDATE users SET premium_status = 1, premium_until = ? WHERE id_user = ?");
+        $update_usr->execute([$new_until, $user_id]);
+        $_SESSION['user_premium'] = 1;
+
+        $pdo->commit();
+
+        $success = 'Pembayaran Sukses! Status premium Anda telah diaktifkan sampai ' . date('d-m-Y H:i', strtotime($new_until)) . '.';
     } catch (PDOException $e) {
         $pdo->rollBack();
         $error = 'Terjadi kesalahan sistem saat memproses transaksi: ' . $e->getMessage();
     }
 }
+
+
 ?>
 
 <?php require_once __DIR__ . '/includes/header.php'; ?>
@@ -216,26 +180,10 @@ if ($pay['premium_status'] == 1 && !empty($pay['premium_until'])) {
           </div>
         </div>
 
-        <!-- Simulator status selector -->
-        <input type="hidden" name="simulate_status" id="simulate-status-field" value="success">
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); margin-top: 25px;">
-          <button type="submit" class="btn btn-primary" style="height: 44px;">Konfirmasi Pembayaran</button>
-        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">Bayar Sekarang</button>
       </form>
     <?php endif; ?>
   </div>
 </div>
-
-<script>
-  function submitSimulatedPayment(status) {
-    const field = document.getElementById('simulate-status-field');
-    const form = document.getElementById('payment-form');
-    if (field && form) {
-      field.value = status;
-      form.submit();
-    }
-  }
-</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

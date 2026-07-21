@@ -150,7 +150,7 @@ try {
           <label class="form-label">Filter Status Pembayaran</label>
           <select name="status" class="form-input">
             <option value="all" <?php echo ($filter_status === 'all') ? 'selected' : ''; ?>>Semua Transaksi</option>
-            <option value="completed" <?php echo ($filter_status === 'completed') ? 'selected' : ''; ?>>Sukses (Completed)</option>
+            <option value="success" <?php echo ($filter_status === 'success') ? 'selected' : ''; ?>>Sukses (Success)</option>
             <option value="pending" <?php echo ($filter_status === 'pending') ? 'selected' : ''; ?>>Tertunda (Pending)</option>
             <option value="failed" <?php echo ($filter_status === 'failed') ? 'selected' : ''; ?>>Gagal (Failed)</option>
           </select>
@@ -194,7 +194,7 @@ try {
                   <td><?php echo sanitize($pay['payment_method']); ?></td>
                   <td style="font-weight: 600; color: var(--color-ink);"><?php echo formatRupiah($pay['amount']); ?></td>
                   <td>
-                    <?php if ($pay['payment_status'] === 'completed'): ?>
+                    <?php if ($pay['payment_status'] === 'success'): ?>
                       <span class="badge badge-success" style="font-size: 10px; padding: 2px 6px;">Sukses</span>
                     <?php elseif ($pay['payment_status'] === 'pending'): ?>
                       <span class="badge badge-cream" style="font-size: 10px; padding: 2px 6px; color:#d4a017; font-weight:600;">Pending</span>
