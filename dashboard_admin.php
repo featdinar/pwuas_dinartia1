@@ -16,7 +16,7 @@ try {
     $stats['users_premium'] = $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'user' AND premium_status = 1")->fetchColumn();
     $stats['messages_count'] = $pdo->query("SELECT COUNT(*) FROM messages")->fetchColumn();
     $stats['songs_count'] = $pdo->query("SELECT COUNT(*) FROM songs")->fetchColumn();
-    $stats['earnings'] = $pdo->query("SELECT SUM(amount) FROM payments WHERE payment_status = 'completed'")->fetchColumn() ?: 0.00;
+    $stats['earnings'] = $pdo->query("SELECT SUM(amount) FROM payments WHERE payment_status = 'success'")->fetchColumn() ?: 0.00;
 
     // 2. Fetch 5 Recent Registered Users
     $recent_users = $pdo->query("SELECT id_user, name, email, premium_status, created_at FROM users WHERE role = 'user' ORDER BY created_at DESC LIMIT 5")->fetchAll();
@@ -154,12 +154,12 @@ try {
                     <td><?php echo sanitize($pay['package_name']); ?></td>
                     <td style="font-weight:600;"><?php echo formatRupiah($pay['amount']); ?></td>
                     <td>
-                      <?php if ($pay['payment_status'] === 'completed'): ?>
-                        <span class="badge badge-success" style="font-size: 9px; padding: 2px 6px;">Sukses</span>
+                      <?php if ($pay['payment_status'] === 'success'): ?>
+                      <span class="badge badge-success" style="font-size:9px;padding:2px 6px;">SUKSES</span>
                       <?php elseif ($pay['payment_status'] === 'pending'): ?>
-                        <span class="badge badge-cream" style="font-size: 9px; padding: 2px 6px; color:#d4a017;">Tertunda</span>
-                      <?php else: ?>
-                        <span class="badge badge-danger" style="font-size: 9px; padding: 2px 6px;">Gagal</span>
+                      <span class="badge badge-cream" style="font-size:9px;padding:2px 6px;color:#d4a017;">PENDING</span>
+                      <?php elseif ($pay['payment_status'] === 'failed'): ?>
+                      <span class="badge badge-danger" style="font-size:9px;padding:2px 6px;">GAGAL</span>
                       <?php endif; ?>
                     </td>
                   </tr>

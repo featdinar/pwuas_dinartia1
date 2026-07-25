@@ -77,16 +77,6 @@ require_once __DIR__ . '/includes/header.php';
     <div style="text-align: center; margin-top: 20px; font-size: 14px; color: var(--color-muted);">
       Belum punya akun? <a href="register.php" style="font-weight: 500;">Daftar akun baru</a>
     </div>
-
-    <!-- Quick access credentials helper for easy testing -->
-    <div style="margin-top: 30px; padding: 12px; border: 1px dashed var(--color-hairline); border-radius: var(--rounded-md); font-size: 12px; background-color: var(--color-surface-soft);">
-      <p style="font-weight: 600; color: var(--color-ink); margin-bottom: 4px;">Akun Demo Pengujian:</p>
-      <ul style="list-style: none; padding-left: 0;">
-        <li><strong>Admin:</strong> admin@unsent.com / admin123</li>
-        <li><strong>User Biasa:</strong> jane@example.com / user123</li>
-        <li><strong>User Premium:</strong> john@example.com / user123</li>
-      </ul>
-    </div>
   </div>
 </div>
 
