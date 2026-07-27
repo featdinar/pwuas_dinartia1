@@ -7,13 +7,14 @@ $error_msg = '';
 
 try {
     // Fetch message details
-    $stmt = $pdo->prepare("
-        SELECT m.*, s.title as song_title, s.artist as song_artist, s.link as song_link, s.cover_image as song_cover, s.spotify_url as song_spotify, u.name as author_name 
+    $stmt = $pdo->prepare(
+        "
+        SELECT m.*, s.title as song_title, s.artist as song_artist, s.link as song_link, s.cover_image as song_cover, s.spotify_url as song_spotify, s.preview_url as song_preview, u.name as author_name 
         FROM messages m 
         JOIN songs s ON m.id_song = s.id_song 
         JOIN users u ON m.id_user = u.id_user 
         WHERE m.id_message = ?
-    ");
+        ");
     $stmt->execute([$id]);
     $msg = $stmt->fetch();
 } catch (PDOException $e) {
@@ -104,9 +105,12 @@ $author = ($msg['anonymous'] == 1) ? 'Seseorang yang ingin dirahasiakan' : sanit
             <img src="<?= htmlspecialchars($cover) ?>" alt="Cover" style="width:60px; height:60px; object-fit:cover; border-radius:4px;">
         <?php endif; ?>
         <div>
-            <div style="font-weight:600;"><?= htmlspecialchars($title) ?></div>
-            <div style="color:var(--color-muted); font-size:0.9em;"><?= htmlspecialchars($artist) ?></div>
-            <a href="<?= htmlspecialchars($msg['song_spotify']) ?>" target="_blank" class="btn btn-primary" style="margin-top:6px; font-size:12px; padding:4px 10px;">Buka di Spotify</a>
+            <div style="font-weight:600;"><?php echo htmlspecialchars($title) ?></div>
+            <div style="color:var(--color-muted); font-size:0.9em;"><?php echo htmlspecialchars($artist) ?></div>
+            <a href="<?php echo htmlspecialchars($msg['song_spotify']) ?>" target="_blank" class="btn btn-primary" style="margin-top:6px; font-size:12px; padding:4px 10px;">Buka di Spotify</a>
+            <?php if (!empty($msg['song_preview'])): ?>
+                <audio src="<?php echo htmlspecialchars($msg['song_preview']) ?>" controls style="margin-top:8px; width:100%; max-width:300px;"></audio>
+            <?php endif; ?>
         </div>
     </div>
 <?php endif; ?>

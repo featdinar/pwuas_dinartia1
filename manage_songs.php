@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $link = sanitize($_POST['link']);
         $cover_image = isset($_POST['cover_image']) ? sanitize($_POST['cover_image']) : '';
         $spotify_url = sanitize($_POST['spotify_url']);
-
+$preview_url = isset($_POST['preview_url']) ? sanitize($_POST['preview_url']) : '';
         // Auto-fetch if Spotify URL is provided
         if (!empty($spotify_url)) {
             $spotify_data = getSpotifyMetadata($spotify_url);
@@ -34,8 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Judul, artis, dan tautan lagu wajib diisi.';
         } else {
             try {
-                $insert = $pdo->prepare("INSERT INTO songs (title, artist, link, cover_image, spotify_url) VALUES (?, ?, ?, ?, ?)");
-                if ($insert->execute([$title, $artist, $link, empty($cover_image) ? null : $cover_image, empty($spotify_url) ? null : $spotify_url])) {
+                $insert = $pdo->prepare("INSERT INTO songs (title, artist, link, cover_image, spotify_url, preview_url) VALUES (?, ?, ?, ?, ?, ?)");
+                if ($insert->execute([$title, $artist, $link, empty($cover_image) ? null : $cover_image, empty($spotify_url) ? null : $spotify_url, empty($preview_url) ? null : $preview_url])) {
                     $success = 'Lagu baru berhasil ditambahkan ke katalog.';
                 } else {
                     $error = 'Gagal menambahkan lagu.';
@@ -54,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $link = sanitize($_POST['link']);
         $cover_image = isset($_POST['cover_image']) ? sanitize($_POST['cover_image']) : '';
         $spotify_url = sanitize($_POST['spotify_url']);
+        $preview_url = isset($_POST['preview_url']) ? sanitize($_POST['preview_url']) : '';
 
         // Auto-fetch if Spotify URL is provided
         if (!empty($spotify_url)) {
@@ -69,8 +70,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Judul, artis, dan tautan lagu wajib diisi.';
         } else {
             try {
-                $update = $pdo->prepare("UPDATE songs SET title = ?, artist = ?, link = ?, cover_image = ?, spotify_url = ? WHERE id_song = ?");
-                if ($update->execute([$title, $artist, $link, empty($cover_image) ? null : $cover_image, empty($spotify_url) ? null : $spotify_url, $id_song])) {
+                $update = $pdo->prepare("UPDATE songs SET title = ?, artist = ?, link = ?, cover_image = ?, spotify_url = ?, preview_url = ? WHERE id_song = ?");
+                if ($update->execute([$title, $artist, $link, empty($cover_image) ? null : $cover_image, empty($spotify_url) ? null : $spotify_url, empty($preview_url) ? null : $preview_url, $id_song])) {
                     $success = 'Informasi lagu berhasil diperbarui.';
                 } else {
                     $error = 'Gagal memperbarui lagu.';
@@ -170,7 +171,11 @@ try {
               <div class="form-group">
                 <label class="form-label">Tautan Spotify</label>
                 <input type="url" id="edit-spotify-url" name="spotify_url" class="form-input" placeholder="https://open.spotify.com/track/..." value="<?php echo sanitize($edit_song['spotify_url']); ?>">
-              </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">URL Preview Lagu (audio/mpeg)</label>
+                <input type="url" id="edit-preview-url" name="preview_url" class="form-input" placeholder="https://.../preview.mp3" value="<?php echo sanitize($edit_song['preview_url'] ?? ''); ?>">
+            </div>
               <div class="form-group">
                 <label class="form-label">Tautan Lagu (YouTube/Lainnya)</label>
                 <input type="url" name="link" class="form-input" required value="<?php echo sanitize($edit_song['link']); ?>">
@@ -219,14 +224,18 @@ try {
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
-              <div class="form-group">
-                <label class="form-label">Tautan Spotify</label>
-                <input type="url" id="add-spotify-url" name="spotify_url" class="form-input" placeholder="https://open.spotify.com/track/..." value="<?php echo isset($_POST['spotify_url']) && isset($_POST['add_song']) ? sanitize($_POST['spotify_url']) : ''; ?>">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Tautan Lagu (YouTube/Lainnya)</label>
-                <input type="url" name="link" class="form-input" placeholder="https://..." required value="<?php echo isset($_POST['link']) && isset($_POST['add_song']) ? sanitize($_POST['link']) : ''; ?>">
-              </div>
+                <div class="form-group">
+                    <label class="form-label">Tautan Spotify</label>
+                    <input type="url" id="add-spotify-url" name="spotify_url" class="form-input" placeholder="https://open.spotify.com/track/..." value="<?php echo isset($_POST['spotify_url']) && isset($_POST['add_song']) ? sanitize($_POST['spotify_url']) : ''; ?>">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">URL Preview Lagu (audio/mpeg)</label>
+                    <input type="url" id="add-preview-url" name="preview_url" class="form-input" placeholder="https://.../preview.mp3" value="<?php echo isset($_POST['preview_url']) && isset($_POST['add_song']) ? sanitize($_POST['preview_url']) : ''; ?>">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tautan Lagu (YouTube/Lainnya)</label>
+                    <input type="url" name="link" class="form-input" placeholder="https://..." required value="<?php echo isset($_POST['link']) && isset($_POST['add_song']) ? sanitize($_POST['link']) : ''; ?>">
+                </div>
             </div>
 
             <input type="hidden" id="add-cover-image" name="cover_image" value="<?php echo isset($_POST['cover_image']) && isset($_POST['add_song']) ? sanitize($_POST['cover_image']) : ''; ?>">

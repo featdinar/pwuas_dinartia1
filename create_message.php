@@ -12,7 +12,7 @@ $is_prem = isPremium();
 
 // Fetch catalog of songs
 try {
-    $songs_stmt = $pdo->prepare("SELECT id_song, title, artist, cover_image FROM songs ORDER BY title ASC");
+    $songs_stmt = $pdo->prepare("SELECT id_song, title, artist, cover_image, preview_url FROM songs ORDER BY title ASC");
     $songs_stmt->execute();
     $songs = $songs_stmt->fetchAll();
 } catch (PDOException $e) {
@@ -143,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <input type="hidden" name="id_song" id="selected_song_id" value="<?php echo isset($_POST['id_song']) ? (int)$_POST['id_song'] : ''; ?>" />
     <div id="song_dropdown" class="song-dropdown" style="display:none; position:absolute; left:0; width:100%; max-height:280px; overflow-y:auto; background:#F8F3EC; border:1px solid #E5D6C8; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:1000;">
         <?php foreach ($songs as $song): ?>
-        <div class="song-item" data-id="<?php echo $song['id_song']; ?>" data-title="<?php echo htmlspecialchars($song['title'], ENT_QUOTES); ?>" data-artist="<?php echo htmlspecialchars($song['artist'], ENT_QUOTES); ?>" style="display:flex; align-items:center; height:64px; padding:5px 8px; cursor:pointer;">
+        <div class="song-item" data-id="<?php echo $song['id_song']; ?>" data-title="<?php echo htmlspecialchars($song['title'], ENT_QUOTES); ?>" data-artist="<?php echo htmlspecialchars($song['artist'], ENT_QUOTES); ?>" data-cover="<?php echo $song['cover_image']; ?>" data-preview-url="<?php echo $song['preview_url']; ?>" style="display:flex; align-items:center; height:64px; padding:5px 8px; cursor:pointer;">
             <img src="<?php echo !empty($song['cover_image']) ? sanitize($song['cover_image']) : 'images/default_cover.png'; ?>" alt="Cover" style="width:48px; height:48px; object-fit:cover; margin-right:8px; border-radius:8px;" />
             <div>
                 <div style="font-weight:500; color:#2D2D2D;"><?php echo sanitize($song['title']); ?></div>
@@ -152,6 +152,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <?php endforeach; ?>
     </div>
+<div id="song_preview" style="margin-top:15px; display:none; flex-direction:column; align-items:flex-start;">
+    <img id="preview-cover" src="images/default_cover.png" alt="Cover" style="width:80px; height:80px; object-fit:cover; border-radius:6px; border:1px solid var(--color-hairline); margin-bottom:8px;">
+    <p id="preview-title" style="font-weight:600; margin:0;"></p>
+    <p id="preview-artist" style="font-size:0.9em; color:var(--color-muted); margin:0;"></p>
+    <audio id="preview-audio" controls style="margin-top:8px; width:100%; max-width:300px;"></audio>
+</div>
     <span style="font-size:12px; color:var(--color-muted);">Pilih dari daftar lagu yang tersedia di sistem kami.</span>
 </div>
 <style>
@@ -195,10 +201,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Click selection
     Array.from(items).forEach(item => {
         item.addEventListener('click', function() {
-            hiddenInput.value = this.dataset.id;
-            searchInput.value = this.dataset.title;
-            dropdown.style.display = 'none';
-        });
+    hiddenInput.value = this.dataset.id;
+    searchInput.value = this.dataset.title;
+    // Update preview UI
+    document.getElementById('preview-title').textContent = this.dataset.title;
+    document.getElementById('preview-artist').textContent = this.dataset.artist;
+    var coverImg = document.getElementById('preview-cover');
+    coverImg.src = this.dataset.cover ? this.dataset.cover : 'images/default_cover.png';
+    var audioElem = document.getElementById('preview-audio');
+    if (this.dataset.previewUrl) {
+        audioElem.src = this.dataset.previewUrl;
+        audioElem.style.display = 'block';
+    } else {
+        audioElem.removeAttribute('src');
+        audioElem.style.display = 'none';
+    }
+    document.getElementById('song_preview').style.display = 'flex';
+    dropdown.style.display = 'none';
+});
     });
 
     // Hide dropdown when clicking outside
