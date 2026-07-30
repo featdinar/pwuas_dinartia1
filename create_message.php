@@ -138,28 +138,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
 
       <div class="form-group song-selection" style="position:relative;">
-    <label class="form-label" for="song_search">Pilih Lagu Pendukung</label>
-    <input type="text" id="song_search" class="form-input" placeholder="Cari lagu..." autocomplete="off" />
-    <input type="hidden" name="id_song" id="selected_song_id" value="<?php echo isset($_POST['id_song']) ? (int)$_POST['id_song'] : ''; ?>" />
-    <div id="song_dropdown" class="song-dropdown" style="display:none; position:absolute; left:0; width:100%; max-height:280px; overflow-y:auto; background:#F8F3EC; border:1px solid #E5D6C8; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:1000;">
-        <?php foreach ($songs as $song): ?>
-        <div class="song-item" data-id="<?php echo $song['id_song']; ?>" data-title="<?php echo htmlspecialchars($song['title'], ENT_QUOTES); ?>" data-artist="<?php echo htmlspecialchars($song['artist'], ENT_QUOTES); ?>" data-cover="<?php echo $song['cover_image']; ?>" data-preview-url="<?php echo $song['preview_url']; ?>" style="display:flex; align-items:center; height:64px; padding:5px 8px; cursor:pointer;">
-            <img src="<?php echo !empty($song['cover_image']) ? sanitize($song['cover_image']) : 'images/default_cover.png'; ?>" alt="Cover" style="width:48px; height:48px; object-fit:cover; margin-right:8px; border-radius:8px;" />
-            <div>
-                <div style="font-weight:500; color:#2D2D2D;"><?php echo sanitize($song['title']); ?></div>
-                <div style="font-size:0.9em; color:#7A6E66;"><?php echo sanitize($song['artist']); ?></div>
+        <label class="form-label" for="song_search">Pilih Lagu Pendukung</label>
+        <input type="text" id="song_search" class="form-input" placeholder="Cari lagu..." autocomplete="off" />
+        <input type="hidden" name="id_song" id="selected_song_id" value="<?php echo isset($_POST['id_song']) ? (int)$_POST['id_song'] : ''; ?>" />
+        
+        <div id="song_dropdown" class="song-dropdown" style="display:none; position:absolute; left:0; width:100%; max-height:280px; overflow-y:auto; background:var(--color-surface-card); border:1px solid var(--color-hairline); border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:1000; margin-top:4px;">
+            <?php foreach ($songs as $song): ?>
+            <div class="song-item" data-id="<?php echo $song['id_song']; ?>" data-title="<?php echo htmlspecialchars($song['title'], ENT_QUOTES); ?>" data-artist="<?php echo htmlspecialchars($song['artist'], ENT_QUOTES); ?>" data-cover="<?php echo $song['cover_image']; ?>" data-preview-url="<?php echo $song['preview_url']; ?>" style="display:flex; align-items:center; gap:12px; padding:12px; border-bottom:1px solid rgba(0,0,0,0.05); cursor:pointer;">
+                <?php if (!empty($song['cover_image'])): ?>
+                  <img src="<?php echo sanitize($song['cover_image']); ?>" alt="Cover" style="width:44px; height:44px; border-radius:4px; object-fit:cover;">
+                <?php else: ?>
+                  <div style="width:44px; height:44px; border-radius:4px; background:rgba(0,0,0,0.05);"></div>
+                <?php endif; ?>
+                <div style="flex:1; overflow:hidden;">
+                    <div style="font-weight:600; font-size:14px; color:var(--color-ink); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;"><?php echo sanitize($song['title']); ?></div>
+                    <div style="color:var(--color-muted); font-size:12px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;"><?php echo sanitize($song['artist']); ?></div>
+                </div>
+                <svg style="width:20px; height:20px; fill:#1DB954; flex-shrink:0;" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.6 14.4c-.2.3-.6.4-.9.2-2.4-1.5-5.5-1.8-9.1-1-.4.1-.7-.2-.8-.6-.1-.4.2-.7.6-.8 4-.9 7.4-.5 10 .1.3.1.4.5.2.8zm1.3-2.9c-.2.4-.7.5-1.1.3-2.8-1.7-7.1-2.2-10.4-1.2-.5.1-.9-.1-1.1-.6-.1-.5.1-.9.6-1.1 3.8-1.2 8.6-.6 11.8 1.4.4.2.5.7.2 1.2zm.1-3c-3.3-2-8.8-2.2-12-1.2-.6.2-1.3-.2-1.4-.8-.2-.6.2-1.3.8-1.4 3.7-1.1 9.9-.9 13.7 1.4.5.3.7 1 .4 1.5-.3.6-.9.8-1.5.5z"/>
+                </svg>
             </div>
+            <?php endforeach; ?>
         </div>
-        <?php endforeach; ?>
-    </div>
-<div id="song_preview" style="margin-top:15px; display:none; flex-direction:column; align-items:flex-start;">
-    <img id="preview-cover" src="images/default_cover.png" alt="Cover" style="width:80px; height:80px; object-fit:cover; border-radius:6px; border:1px solid var(--color-hairline); margin-bottom:8px;">
-    <p id="preview-title" style="font-weight:600; margin:0;"></p>
-    <p id="preview-artist" style="font-size:0.9em; color:var(--color-muted); margin:0;"></p>
-    <audio id="preview-audio" controls style="margin-top:8px; width:100%; max-width:300px;"></audio>
-</div>
-    <span style="font-size:12px; color:var(--color-muted);">Pilih dari daftar lagu yang tersedia di sistem kami.</span>
-</div>
+        
+        <div id="song_preview" style="margin-top:15px; display:none;">
+            <div style="display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--color-hairline); border-radius:8px; background:rgba(0,0,0,0.02);">
+                <img id="preview-cover" src="images/default_cover.png" alt="Cover" style="width:44px; height:44px; border-radius:4px; object-fit:cover; display:none;">
+                <div id="preview-cover-fallback" style="width:44px; height:44px; border-radius:4px; background:rgba(0,0,0,0.05); display:block;"></div>
+                <div style="flex:1; overflow:hidden;">
+                    <div id="preview-title" style="font-weight:600; font-size:14px; color:var(--color-ink); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;"></div>
+                    <div id="preview-artist" style="color:var(--color-muted); font-size:12px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;"></div>
+                </div>
+                <svg style="width:24px; height:24px; fill:#1DB954; flex-shrink:0;" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.6 14.4c-.2.3-.6.4-.9.2-2.4-1.5-5.5-1.8-9.1-1-.4.1-.7-.2-.8-.6-.1-.4.2-.7.6-.8 4-.9 7.4-.5 10 .1.3.1.4.5.2.8zm1.3-2.9c-.2.4-.7.5-1.1.3-2.8-1.7-7.1-2.2-10.4-1.2-.5.1-.9-.1-1.1-.6-.1-.5.1-.9.6-1.1 3.8-1.2 8.6-.6 11.8 1.4.4.2.5.7.2 1.2zm.1-3c-3.3-2-8.8-2.2-12-1.2-.6.2-1.3-.2-1.4-.8-.2-.6.2-1.3.8-1.4 3.7-1.1 9.9-.9 13.7 1.4.5.3.7 1 .4 1.5-.3.6-.9.8-1.5.5z"/>
+                </svg>
+            </div>
+            <audio id="preview-audio" controls style="margin-top:12px; width:100%; max-width:100%; display:none;"></audio>
+        </div>
+        <span style="font-size:12px; color:var(--color-muted); display:block; margin-top:8px;">Ketik untuk mencari dari daftar lagu yang tersedia.</span>
+      </div>
 <style>
 .song-dropdown {
     animation: fadeSlideIn 0.2s ease-out forwards;
@@ -201,24 +218,35 @@ document.addEventListener('DOMContentLoaded', function() {
     // Click selection
     Array.from(items).forEach(item => {
         item.addEventListener('click', function() {
-    hiddenInput.value = this.dataset.id;
-    searchInput.value = this.dataset.title;
-    // Update preview UI
-    document.getElementById('preview-title').textContent = this.dataset.title;
-    document.getElementById('preview-artist').textContent = this.dataset.artist;
-    var coverImg = document.getElementById('preview-cover');
-    coverImg.src = this.dataset.cover ? this.dataset.cover : 'images/default_cover.png';
-    var audioElem = document.getElementById('preview-audio');
-    if (this.dataset.previewUrl) {
-        audioElem.src = this.dataset.previewUrl;
-        audioElem.style.display = 'block';
-    } else {
-        audioElem.removeAttribute('src');
-        audioElem.style.display = 'none';
-    }
-    document.getElementById('song_preview').style.display = 'flex';
-    dropdown.style.display = 'none';
-});
+            hiddenInput.value = this.dataset.id;
+            searchInput.value = this.dataset.title;
+            // Update preview UI
+            document.getElementById('preview-title').textContent = this.dataset.title;
+            document.getElementById('preview-artist').textContent = this.dataset.artist;
+            
+            var coverImg = document.getElementById('preview-cover');
+            var coverFallback = document.getElementById('preview-cover-fallback');
+            
+            if (this.dataset.cover) {
+                coverImg.src = this.dataset.cover;
+                coverImg.style.display = 'block';
+                coverFallback.style.display = 'none';
+            } else {
+                coverImg.style.display = 'none';
+                coverFallback.style.display = 'block';
+            }
+            
+            var audioElem = document.getElementById('preview-audio');
+            if (this.dataset.previewUrl) {
+                audioElem.src = this.dataset.previewUrl;
+                audioElem.style.display = 'block';
+            } else {
+                audioElem.removeAttribute('src');
+                audioElem.style.display = 'none';
+            }
+            document.getElementById('song_preview').style.display = 'block';
+            dropdown.style.display = 'none';
+        });
     });
 
     // Hide dropdown when clicking outside

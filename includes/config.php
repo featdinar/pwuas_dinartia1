@@ -46,18 +46,22 @@ function isPremium() {
         $user = $stmt->fetch();
         
         if ($user) {
-            if ($user['premium_status'] == 1 && $user['premium_until'] !== null) {
+            if ($user['premium_until'] !== null) {
                 $until = strtotime($user['premium_until']);
-                if ($until < time()) {
-                    // Premium expired, update DB status
-                    $update = $pdo->prepare("UPDATE users SET premium_status = 0 WHERE id_user = ?");
-                    $update->execute([$_SESSION['user_id']]);
-                    $_SESSION['user_premium'] = 0;
-                    return false;
+                if ($until > time()) {
+                    // Premium still active until expiry date, regardless of status
+                    $_SESSION['user_premium'] = 1;
+                    return true;
+                } else {
+                    // Premium expired, update DB status if it was still active
+                    if ($user['premium_status'] == 1) {
+                        $update = $pdo->prepare("UPDATE users SET premium_status = 0 WHERE id_user = ?");
+                        $update->execute([$_SESSION['user_id']]);
+                    }
                 }
-                $_SESSION['user_premium'] = 1;
-                return true;
             }
+            $_SESSION['user_premium'] = 0;
+            return false;
         }
     }
     return false;

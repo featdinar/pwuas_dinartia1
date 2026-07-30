@@ -175,6 +175,7 @@ $expiry = getPremiumExpiry();
                     <div style="display: flex; gap: 8px;">
                       <a href="view_message.php?id=<?php echo $msg['id_message']; ?>" class="btn btn-secondary" style="height:28px; padding:2px 8px; font-size:11px;" title="Baca Selengkapnya">Lihat</a>
                       <a href="edit_message.php?id=<?php echo $msg['id_message']; ?>" class="btn btn-secondary" style="height:28px; padding:2px 8px; font-size:11px;" title="Ubah Pesan">Edit</a>
+                      <a href="delete_message.php?id=<?php echo $msg['id_message']; ?>" class="btn btn-secondary" style="height:28px; padding:2px 8px; font-size:11px; color: #d9534f; border-color: #d9534f;" title="Hapus Pesan" onclick="return confirm('Apakah Anda yakin ingin menghapus pesan ini? Tindakan ini tidak dapat dibatalkan.');">Hapus</a>
                     </div>
                   </td>
                 </tr>

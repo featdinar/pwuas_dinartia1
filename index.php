@@ -5,7 +5,7 @@ require_once __DIR__ . '/includes/header.php';
 // Fetch the 6 latest public messages
 try {
     $stmt = $pdo->prepare("
-        SELECT m.*, s.title as song_title, s.artist as song_artist, u.name as author_name 
+        SELECT m.*, s.title as song_title, s.artist as song_artist, s.cover_image as song_cover, s.spotify_url as song_spotify, u.name as author_name 
         FROM messages m 
         JOIN songs s ON m.id_song = s.id_song 
         JOIN users u ON m.id_user = u.id_user 
@@ -74,7 +74,7 @@ try {
           $theme_class = 'theme-' . $msg['theme'];
           $author = ($msg['anonymous'] == 1) ? 'Seseorang' : sanitize($msg['author_name']);
         ?>
-        <div class="message-card <?php echo $theme_class; ?>">
+        <div class="message-card <?php echo $theme_class; ?>" style="pointer-events: none;">
           <div>
             <div class="message-meta">
               <span>Untuk:</span>
@@ -86,17 +86,19 @@ try {
             </p>
           </div>
           
-          <div>
-            <div class="message-song-tag">
-              <svg style="width: 14px; height: 14px;" viewBox="0 0 24 24">
-                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-              </svg>
-              <span><?php echo sanitize($msg['song_title']); ?> - <?php echo sanitize($msg['song_artist']); ?></span>
+          <div style="margin-top: 15px; border-top: 1px solid rgba(0,0,0,0.08); padding-top: 15px; display: flex; align-items: center; gap: 12px;">
+            <?php if (!empty($msg['song_cover'])): ?>
+              <img src="<?php echo sanitize($msg['song_cover']); ?>" alt="Cover" style="width: 44px; height: 44px; border-radius: 4px; object-fit: cover;">
+            <?php else: ?>
+              <div style="width: 44px; height: 44px; border-radius: 4px; background: rgba(0,0,0,0.05);"></div>
+            <?php endif; ?>
+            <div style="flex: 1; overflow: hidden;">
+              <div style="font-weight: 600; font-size: 14px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"><?php echo sanitize($msg['song_title']); ?></div>
+              <div style="color: var(--color-muted); font-size: 12px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"><?php echo sanitize($msg['song_artist']); ?></div>
             </div>
-            
-            <div style="margin-top: 15px; text-align: right;">
-              <a href="view_message.php?id=<?php echo $msg['id_message']; ?>" class="btn btn-secondary" style="height:32px; padding:4px 12px; font-size:12px;">Baca Selengkapnya</a>
-            </div>
+            <svg style="width: 24px; height: 24px; fill: #1DB954; flex-shrink: 0;" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.6 14.4c-.2.3-.6.4-.9.2-2.4-1.5-5.5-1.8-9.1-1-.4.1-.7-.2-.8-.6-.1-.4.2-.7.6-.8 4-.9 7.4-.5 10 .1.3.1.4.5.2.8zm1.3-2.9c-.2.4-.7.5-1.1.3-2.8-1.7-7.1-2.2-10.4-1.2-.5.1-.9-.1-1.1-.6-.1-.5.1-.9.6-1.1 3.8-1.2 8.6-.6 11.8 1.4.4.2.5.7.2 1.2zm.1-3c-3.3-2-8.8-2.2-12-1.2-.6.2-1.3-.2-1.4-.8-.2-.6.2-1.3.8-1.4 3.7-1.1 9.9-.9 13.7 1.4.5.3.7 1 .4 1.5-.3.6-.9.8-1.5.5z"/>
+            </svg>
           </div>
         </div>
       <?php endforeach; ?>

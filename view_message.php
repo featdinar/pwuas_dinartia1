@@ -96,40 +96,38 @@ $author = ($msg['anonymous'] == 1) ? 'Seseorang yang ingin dirahasiakan' : sanit
 
 <?php if (!empty($msg['song_spotify'])): ?>
     <?php
-        $cover = $msg['song_cover'] ?? '';
-        $title = $msg['song_title'] ?? '';
-        $artist = $msg['song_artist'] ?? '';
+        $spotify_url = $msg['song_spotify'];
+        $track_id = '';
+        $parsed = parse_url($spotify_url);
+        if (isset($parsed['path'])) {
+            $path_parts = explode('/', trim($parsed['path'], '/'));
+            if (count($path_parts) >= 2 && $path_parts[0] === 'track') {
+                $track_id = $path_parts[1];
+            }
+        }
     ?>
-    <div class="song-card" style="display:flex; align-items:center; gap:12px; margin-top:20px; padding:10px; background:var(--color-surface-soft); border-radius:8px;">
-        <?php if ($cover): ?>
-            <img src="<?= htmlspecialchars($cover) ?>" alt="Cover" style="width:60px; height:60px; object-fit:cover; border-radius:4px;">
+    <div style="margin-top: 25px;">
+        <?php if ($track_id): ?>
+            <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/<?php echo htmlspecialchars($track_id); ?>?utm_source=generator" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        <?php else: ?>
+            <div class="song-card" style="display:flex; align-items:center; gap:12px; padding:10px; background:var(--color-surface-soft); border-radius:8px;">
+                <?php if (!empty($msg['song_cover'])): ?>
+                    <img src="<?= htmlspecialchars($msg['song_cover']) ?>" alt="Cover" style="width:60px; height:60px; object-fit:cover; border-radius:4px;">
+                <?php endif; ?>
+                <div style="flex: 1;">
+                    <div style="font-weight:600;"><?php echo htmlspecialchars($msg['song_title'] ?? '') ?></div>
+                    <div style="color:var(--color-muted); font-size:0.9em;"><?php echo htmlspecialchars($msg['song_artist'] ?? '') ?></div>
+                    <?php if (!empty($msg['song_preview'])): ?>
+                        <audio src="<?php echo htmlspecialchars($msg['song_preview']) ?>" controls style="margin-top:8px; width:100%; max-width:300px;"></audio>
+                    <?php endif; ?>
+                </div>
+            </div>
         <?php endif; ?>
-        <div>
-            <div style="font-weight:600;"><?php echo htmlspecialchars($title) ?></div>
-            <div style="color:var(--color-muted); font-size:0.9em;"><?php echo htmlspecialchars($artist) ?></div>
-            <a href="<?php echo htmlspecialchars($msg['song_spotify']) ?>" target="_blank" class="btn btn-primary" style="margin-top:6px; font-size:12px; padding:4px 10px;">Buka di Spotify</a>
-            <?php if (!empty($msg['song_preview'])): ?>
-                <audio src="<?php echo htmlspecialchars($msg['song_preview']) ?>" controls style="margin-top:8px; width:100%; max-width:300px;"></audio>
-            <?php endif; ?>
-        </div>
     </div>
 <?php endif; ?>
 
-  <!-- Meta notes for premium users -->
-  <?php if ($is_owner): ?>
-    <div class="card" style="margin-top: 20px; font-size: 14px; background-color: var(--color-surface-soft); border-style: dashed;">
-      <p style="font-weight: 600; margin-bottom: 8px;">Informasi Pengirim (Hanya Anda yang dapat melihat kotak ini):</p>
-      <ul style="list-style: none; padding-left: 0; line-height: 1.6;">
-        <li><strong>Status Pesan:</strong> <?php echo $msg['private_message'] ? 'Privat (Tidak muncul di pencarian)' : 'Publik (Bisa dicari oleh siapapun)'; ?></li>
-        <li><strong>Status Anonim:</strong> <?php echo $msg['anonymous'] ? 'Aktif (Nama Anda disembunyikan dari pembaca)' : 'Non-aktif (Nama Anda ditampilkan)'; ?></li>
-        <li><strong>Tanggal Rilis:</strong> <?php echo $msg['scheduled_date'] ? date('d-m-Y', strtotime($msg['scheduled_date'])) : 'Instan (Langsung rilis)'; ?></li>
-        <li><strong>Tema Terpilih:</strong> <span style="text-transform: capitalize;"><?php echo $msg['theme']; ?></span></li>
-      </ul>
-      <div style="margin-top: 15px;">
-        <a href="edit_message.php?id=<?php echo $msg['id_message']; ?>" class="btn btn-primary" style="height: 32px; font-size: 12px; padding: 0 15px;">Edit Pesan</a>
-      </div>
-    </div>
-  <?php endif; ?>
+
+
 </div>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

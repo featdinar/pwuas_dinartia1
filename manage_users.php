@@ -306,13 +306,22 @@ try {
                     <?php endif; ?>
                   </td>
                   <td>
-                    <?php if ($usr['premium_status']): ?>
+                    <?php 
+                      $is_active_premium = ($usr['premium_status'] == 1 || (!empty($usr['premium_until']) && strtotime($usr['premium_until']) > time()));
+                      if ($is_active_premium): 
+                    ?>
                       <span class="badge badge-coral" style="font-size: 10px;">★ Premium</span>
+                      <?php if ($usr['premium_status'] == 0): ?>
+                        <span class="badge badge-dark" style="font-size: 10px; margin-left: 4px;">Canceled</span>
+                      <?php endif; ?>
                       <div style="font-size: 10px; color: var(--color-muted); margin-top: 2px;">
-                        Exp: <?php echo $usr['premium_until'] ? date('d-m-Y', strtotime($usr['premium_until'])) : 'Unlimited'; ?>
+                        Berlaku s/d: <?php echo $usr['premium_until'] ? date('d-m-Y H:i', strtotime($usr['premium_until'])) : 'Unlimited'; ?>
                       </div>
                     <?php else: ?>
                       <span class="badge badge-cream" style="font-size: 10px; color: var(--color-muted);">Standard</span>
+                      <?php if (!empty($usr['premium_until']) && strtotime($usr['premium_until']) <= time()): ?>
+                        <div style="font-size: 10px; color: var(--color-muted); margin-top: 2px;">Expired: <?php echo date('d-m-Y', strtotime($usr['premium_until'])); ?></div>
+                      <?php endif; ?>
                     <?php endif; ?>
                   </td>
                   <td><?php echo date('d-m-Y H:i', strtotime($usr['created_at'])); ?></td>

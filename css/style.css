@@ -635,20 +635,26 @@ textarea.form-input {
   color: var(--color-on-dark-soft);
   border-color: var(--color-surface-dark-elevated);
 }
-.theme-navy h1, .theme-navy h2, .theme-navy .message-recipient, .theme-navy .message-content-text { color: var(--color-on-dark); }
+.theme-navy h1, .theme-navy h2, .theme-navy h3, .theme-navy .message-recipient, .theme-navy .message-content-text { color: var(--color-on-dark); }
+.theme-navy .message-snippet, .theme-navy p.message-snippet { color: var(--color-on-dark-soft) !important; }
 .theme-navy .message-song-tag { background-color: var(--color-surface-dark-elevated); color: var(--color-accent-teal); }
 .theme-navy .message-song-tag svg { fill: var(--color-accent-teal); }
-.theme-navy .message-meta { color: var(--color-on-dark-soft); }
+.theme-navy .message-meta, .theme-navy .message-meta span { color: var(--color-on-dark-soft); }
+.theme-navy p, .theme-navy div, .theme-navy span { color: var(--color-on-dark-soft); }
+.theme-navy a { color: var(--color-on-dark); }
 
 .theme-coral {
   background-color: var(--color-primary);
   color: rgba(255, 255, 255, 0.85);
   border-color: var(--color-primary-active);
 }
-.theme-coral h1, .theme-coral h2, .theme-coral .message-recipient, .theme-coral .message-content-text { color: var(--color-on-primary); }
+.theme-coral h1, .theme-coral h2, .theme-coral h3, .theme-coral .message-recipient, .theme-coral .message-content-text { color: var(--color-on-primary); }
+.theme-coral .message-snippet, .theme-coral p.message-snippet { color: rgba(255, 255, 255, 0.85) !important; }
 .theme-coral .message-song-tag { background-color: var(--color-primary-active); color: var(--color-on-primary); }
 .theme-coral .message-song-tag svg { fill: var(--color-on-primary); }
-.theme-coral .message-meta { color: rgba(255, 255, 255, 0.7); }
+.theme-coral .message-meta, .theme-coral .message-meta span { color: rgba(255, 255, 255, 0.7); }
+.theme-coral p, .theme-coral div, .theme-coral span { color: rgba(255, 255, 255, 0.85); }
+.theme-coral a { color: #ffffff; }
 
 .theme-teal {
   background-color: var(--color-accent-teal);

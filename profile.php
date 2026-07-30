@@ -24,10 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['stop_premium'])) {
     try {
         // Ensure stop_date column exists
         $pdo->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS stop_date DATETIME NULL");
-        $stmt = $pdo->prepare("UPDATE users SET premium_status = 0, premium_until = NULL, stop_date = CURRENT_TIMESTAMP WHERE id_user = ?");
+        $stmt = $pdo->prepare("UPDATE users SET premium_status = 0, stop_date = CURRENT_TIMESTAMP WHERE id_user = ?");
         $stmt->execute([$user_id]);
-        // Update session variables
-        $_SESSION['user_premium'] = 0;
+        // Update session variables (Not setting user_premium to 0 here because they might still have time left)
         $success = 'Paket premium berhasil dihentikan.';
         // Refresh user data
         $stmt = $pdo->prepare("SELECT * FROM users WHERE id_user = ?");
@@ -174,12 +173,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['stop_premium'])) {
               <div style="font-size: 12px; color: var(--color-muted); margin-top: 6px;">
                 Berlaku hingga: <?php echo date('d-m-Y H:i', strtotime($user['premium_until'])); ?>
               </div>
+              <?php if ($user['premium_status'] == 1): ?>
                 <div style="margin-top: 8px;">
-                    <form method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghentikan paket premium?');">
+                    <form method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghentikan langganan premium? Anda tetap dapat menikmati fitur premium hingga masa aktif berakhir.');">
                         <input type="hidden" name="stop_premium" value="1" />
-                        <button type="submit" class="btn btn-danger" style="height: 30px; font-size:12px; padding:0 12px;">Hentikan Paket Premium</button>
+                        <button type="submit" class="btn btn-danger" style="height: 30px; font-size:12px; padding:0 12px;">Hentikan Perpanjangan</button>
                     </form>
                 </div>
+              <?php else: ?>
+                <div style="margin-top: 8px; font-size: 12px; color: #d9534f; font-weight: 500;">
+                  Langganan telah dihentikan, namun fitur premium masih aktif hingga tanggal berakhir.
+                </div>
+              <?php endif; ?>
             <?php else: ?>
               <span class="badge badge-cream">STANDARD USER</span>
               <div style="margin-top: 8px;">
