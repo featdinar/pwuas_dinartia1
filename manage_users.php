@@ -11,46 +11,8 @@ $edit_user = null;
 
 // Handle CRUD operations
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // 1. ADD USER
-    if (isset($_POST['add_user'])) {
-        $name = sanitize($_POST['name']);
-        $email = sanitize($_POST['email']);
-        $password = $_POST['password'];
-        $role = sanitize($_POST['role']);
-        $premium_status = isset($_POST['premium_status']) ? 1 : 0;
-        $premium_until = !empty($_POST['premium_until']) ? $_POST['premium_until'] : null;
-
-        if (empty($name) || empty($email) || empty($password)) {
-            $error = 'Nama, email, dan password wajib diisi.';
-        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $error = 'Format email tidak valid.';
-        } else {
-            // Check if email already registered
-            $check = $pdo->prepare("SELECT id_user FROM users WHERE email = ?");
-            $check->execute([$email]);
-            if ($check->fetch()) {
-                $error = 'Email sudah terdaftar.';
-            } else {
-                $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-                try {
-                    $insert = $pdo->prepare("
-                        INSERT INTO users (name, email, password, role, premium_status, premium_until)
-                        VALUES (?, ?, ?, ?, ?, ?)
-                    ");
-                    if ($insert->execute([$name, $email, $hashed_password, $role, $premium_status, $premium_until])) {
-                        $success = 'User baru berhasil ditambahkan.';
-                    } else {
-                        $error = 'Gagal menambahkan user.';
-                    }
-                } catch (PDOException $e) {
-                    $error = 'Kesalahan database: ' . $e->getMessage();
-                }
-            }
-        }
-    }
-    
     // 2. UPDATE USER
-    elseif (isset($_POST['update_user'])) {
+    if (isset($_POST['update_user'])) {
         $id_user = (int)$_POST['id_user'];
         $name = sanitize($_POST['name']);
         $email = sanitize($_POST['email']);
@@ -160,7 +122,6 @@ try {
   <!-- Main Area -->
   <div>
     <h2>Kelola Akun Pengguna</h2>
-    <p style="color: var(--color-muted); margin-bottom: 25px;">Tambahkan, ubah, atau hapus keanggotaan pengguna serta ubah role mereka.</p>
 
     <?php if (!empty($error)): ?>
       <div class="alert alert-danger"><strong>Error:</strong> <?php echo $error; ?></div>
@@ -220,55 +181,6 @@ try {
             </div>
           </form>
         </div>
-      <?php else: ?>
-        <!-- Add User Accordion Card -->
-        <details class="card" style="background-color: var(--color-surface-card); cursor: pointer;" <?php echo isset($_POST['add_user']) && !empty($error) ? 'open' : ''; ?>>
-          <summary style="font-size: 18px; font-weight: 500; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
-            <span>+ Tambahkan User Baru</span>
-            <span style="font-size: 12px; color: var(--color-muted);">Klik untuk membuka form</span>
-          </summary>
-          
-          <form action="manage_users.php" method="POST" style="margin-top: 20px; cursor: default;" onsubmit="event.stopPropagation();">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
-              <div class="form-group">
-                <label class="form-label">Nama Lengkap</label>
-                <input type="text" name="name" class="form-input" required value="<?php echo isset($_POST['name']) && isset($_POST['add_user']) ? sanitize($_POST['name']) : ''; ?>">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Email</label>
-                <input type="email" name="email" class="form-input" required value="<?php echo isset($_POST['email']) && isset($_POST['add_user']) ? sanitize($_POST['email']) : ''; ?>">
-              </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
-              <div class="form-group">
-                <label class="form-label">Password</label>
-                <input type="password" name="password" class="form-input" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Role</label>
-                <select name="role" class="form-input">
-                  <option value="user" selected>User Biasa</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); align-items: center;">
-              <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
-                <input type="checkbox" name="premium_status" id="add_prem" value="1">
-                <label for="add_prem" class="form-label" style="margin: 0; cursor:pointer;">Aktifkan Status Premium</label>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Masa Berlaku Premium</label>
-                <input type="datetime-local" name="premium_until" class="form-input">
-              </div>
-            </div>
-
-            <button type="submit" name="add_user" class="btn btn-primary" style="margin-top: 15px; float: right;">Tambah User</button>
-            <div style="clear: both;"></div>
-          </form>
-        </details>
       <?php endif; ?>
     </div>
 

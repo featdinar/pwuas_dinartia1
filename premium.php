@@ -78,12 +78,4 @@ $expiry = getPremiumExpiry();
   <?php endforeach; ?>
 </div>
 
-<!-- Extra note block -->
-<div class="card" style="margin-top: 40px; background-color: var(--color-surface-soft); text-align: center; border-style: dashed;">
-  <h4 style="font-size: 20px; margin-bottom: 8px;">Jaminan Pembayaran Aman & Mudah</h4>
-  <p style="font-size: 14px; color: var(--color-muted); max-width: 600px; margin: 0 auto;">
-    Proses pembayaran disimulasikan menggunakan Payment Gateway dummy. Anda dapat mensimulasikan pembayaran tanpa menggunakan kartu kredit atau uang sungguhan untuk mempermudah pengujian.
-  </p>
-</div>
-
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

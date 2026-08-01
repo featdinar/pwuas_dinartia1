@@ -57,7 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $pdo->commit();
 
-        $success = 'Pembayaran Sukses! Status premium Anda telah diaktifkan sampai ' . date('d-m-Y H:i', strtotime($new_until)) . '.';
+        header("Location: payment_receipt.php?transaction_id=" . urlencode($transaction_id) . "&success=1");
+        exit;
     } catch (PDOException $e) {
         $pdo->rollBack();
         $error = 'Terjadi kesalahan sistem saat memproses transaksi: ' . $e->getMessage();

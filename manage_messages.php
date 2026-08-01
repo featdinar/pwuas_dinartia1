@@ -83,7 +83,6 @@ try {
   <!-- Main Area -->
   <div>
     <h2>Kelola Pesan Unsent</h2>
-    <p style="color: var(--color-muted); margin-bottom: 25px;">Tinjau, cari, dan kelola seluruh pesan yang telah diterbitkan oleh pengguna.</p>
 
     <?php if (!empty($error)): ?>
       <div class="alert alert-danger"><strong>Error:</strong> <?php echo $error; ?></div>

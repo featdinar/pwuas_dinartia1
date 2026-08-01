@@ -42,6 +42,12 @@ $active_until = ($pay['payment_status'] === 'completed' || $pay['payment_status'
   </div>
   <div>
     <h2>Bukti Pembayaran</h2>
+    <?php if (isset($_GET['success']) && $_GET['success'] == '1'): ?>
+      <div class="alert alert-success" style="margin-bottom: 20px; text-align: center; display: block;">
+        <span style="font-size: 32px; display: block; margin-bottom: 10px;">✓</span>
+        <strong>Pembayaran Sukses! Status premium Anda telah diaktifkan.</strong>
+      </div>
+    <?php endif; ?>
     <div class="card" style="background-color: var(--color-surface-card); max-width:600px; margin:auto; border:1px solid var(--color-hairline-soft); padding:20px;">
       <table style="width:100%; border-collapse:collapse; font-size:14px;">
         <tr><td style="padding:8px; font-weight:600;">Transaction ID</td><td style="padding:8px;"><?php echo htmlspecialchars($pay['transaction_id']); ?></td></tr>
